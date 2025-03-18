@@ -1,6 +1,6 @@
 package com.omo.shop.service.product;
 
-import com.omo.shop.exceptions.ProductNotFoundException;
+import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Category;
 import com.omo.shop.models.Product;
 import com.omo.shop.repository.CategoryRepository;
@@ -44,7 +44,7 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElseThrow(
-                () -> new ProductNotFoundException("Product not found!")
+                () -> new ResourceNotFoundException("Product not found!")
         );
     }
 
@@ -53,7 +53,7 @@ public class ProductService implements IProductService {
         productRepository.findById(id).ifPresentOrElse(
                 productRepository::delete,
                 () -> {
-                    throw new ProductNotFoundException("Product not found");
+                    throw new ResourceNotFoundException("Product not found");
                 }
         );
     }
@@ -63,7 +63,7 @@ public class ProductService implements IProductService {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository :: save)
-                .orElseThrow(()-> new ProductNotFoundException("Product not found!"));
+                .orElseThrow(()-> new ResourceNotFoundException("Product not found!"));
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
