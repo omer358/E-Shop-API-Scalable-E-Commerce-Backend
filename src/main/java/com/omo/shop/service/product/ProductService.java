@@ -102,7 +102,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> getProductsByName(String name) {
-        return ProductMapper.toDtoList(productRepository.findByName(name));
+        return ProductMapper.toDtoList(productRepository.findByNameContainingIgnoreCase(name));
     }
 
     @Override
