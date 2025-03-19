@@ -1,5 +1,6 @@
 package com.omo.shop.controller;
 
+import com.omo.shop.dto.ProductDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Product;
 import com.omo.shop.request.AddProductRequest;
@@ -23,14 +24,14 @@ public class  ProductController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
+        List<ProductDto> products = productService.getAllProducts();
         return ResponseEntity.ok(new ApiResponse("Success", products));
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable("productId") Long id) {
         try {
-            Product product = productService.getProductById(id);
+            ProductDto product = productService.getProductById(id);
             return ResponseEntity.ok(new ApiResponse("products", product));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(
@@ -42,7 +43,7 @@ public class  ProductController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
-            Product newProduct = productService.addProduct(product);
+            ProductDto newProduct = productService.addProduct(product);
             return ResponseEntity.ok(new ApiResponse("Success", newProduct));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
@@ -83,25 +84,25 @@ public class  ProductController {
             @RequestParam String brandName,
             @RequestParam String productName
     ) {
-        List<Product> products = productService.getProductsByBrandAndName(brandName, productName);
+        List<ProductDto> products = productService.getProductsByBrandAndName(brandName, productName);
         return ResponseEntity.ok(new ApiResponse("Success", products));
     }
 
     @GetMapping("/by-brand")
     public ResponseEntity<ApiResponse> getProductByBrand(@RequestParam String brand) {
-        List<Product> products = productService.getProductsByBrand(brand);
+        List<ProductDto> products = productService.getProductsByBrand(brand);
         return ResponseEntity.ok(new ApiResponse("Success", products));
     }
 
     @GetMapping("/by-category")
     public ResponseEntity<ApiResponse> getProductByCategory(@RequestParam String category) {
-        List<Product> products = productService.getProductsByCategory(category);
+        List<ProductDto> products = productService.getProductsByCategory(category);
         return ResponseEntity.ok(new ApiResponse("success", products));
     }
 
     @GetMapping("/{name}")
     public ResponseEntity<ApiResponse> getProductsByName(@RequestParam("name") String productName) {
-        List<Product> products = productService.getProductsByName(productName);
+        List<ProductDto> products = productService.getProductsByName(productName);
         return ResponseEntity.ok(new ApiResponse("Success", products));
     }
 }

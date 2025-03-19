@@ -1,5 +1,6 @@
 package com.omo.shop.service.product;
 
+import com.omo.shop.dto.ProductDto;
 import com.omo.shop.models.Product;
 import com.omo.shop.request.AddProductRequest;
 import com.omo.shop.request.UpdateProductRequest;
@@ -7,25 +8,25 @@ import com.omo.shop.request.UpdateProductRequest;
 import java.util.List;
 
 public interface IProductService {
-    Product addProduct(AddProductRequest product);
+    ProductDto addProduct(AddProductRequest product);
 
-    Product getProductById(Long id);
+    ProductDto getProductById(Long id);
 
     void deleteProductById(Long id);
 
     Product updateProduct(UpdateProductRequest product, Long productId);
 
-    List<Product> getAllProducts();
+    List<ProductDto> getAllProducts();
 
-    List<Product> getProductsByCategory(String category);
+    List<ProductDto> getProductsByCategory(String category);
 
-    List<Product> getProductsByBrand(String brand);
+    List<ProductDto> getProductsByBrand(String brand);
 
-    List<Product> getProductsByCategoryAndBrand(String category, String brand);
+    List<ProductDto> getProductsByCategoryAndBrand(String category, String brand);
 
-    List<Product> getProductsByName(String name);
+    List<ProductDto> getProductsByName(String name);
 
-    List<Product> getProductsByBrandAndName(String brand, String name);
+    List<ProductDto> getProductsByBrandAndName(String brand, String name);
 
     Long countProductsByBrandAndName(String brand, String name);
 

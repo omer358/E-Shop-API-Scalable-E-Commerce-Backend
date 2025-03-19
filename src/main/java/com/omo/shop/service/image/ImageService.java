@@ -1,11 +1,13 @@
 package com.omo.shop.service.image;
 
 import com.omo.shop.dto.ImageDto;
+import com.omo.shop.dto.ProductDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Image;
-import com.omo.shop.models.Product;
 import com.omo.shop.repository.ImageRepository;
+import com.omo.shop.service.category.CategoryMapper;
 import com.omo.shop.service.product.IProductService;
+import com.omo.shop.service.product.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +41,7 @@ public class ImageService implements IImageService {
 
     @Override
     public List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
-        Product product = productService.getProductById(productId);
+        ProductDto product = productService.getProductById(productId);
         List<ImageDto> savedImageDto = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
@@ -47,7 +49,7 @@ public class ImageService implements IImageService {
                 image.setFileName(file.getOriginalFilename());
                 image.setFileType(file.getContentType());
                 image.setImage((new SerialBlob(file.getBytes())));
-                image.setProduct(product);
+                image.setProduct(ProductMapper.toProduct(product, CategoryMapper.toCategory(product.getCategory())));
                 String buildDownloadurl = "/api/v1/images/image/download";
                 String downloadUrl = buildDownloadurl + image.getId();
                 image.setDownloadUrl(downloadUrl);

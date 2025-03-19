@@ -1,5 +1,6 @@
 package com.omo.shop.service.product;
 
+import com.omo.shop.dto.ProductDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Category;
 import com.omo.shop.models.Product;
@@ -20,14 +21,14 @@ public class ProductService implements IProductService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Product addProduct(AddProductRequest request) {
+    public ProductDto addProduct(AddProductRequest request) {
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
                     Category newCategory = new Category(request.getCategory().getName());
                     return categoryRepository.save(newCategory);
                 });
         request.setCategory(category);
-        return productRepository.save(createProduct(request, category));
+        return ProductMapper.toDto(productRepository.save(createProduct(request, category)));
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
@@ -42,10 +43,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(
+    public ProductDto getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Product not found!")
         );
+        return ProductMapper.toDto(product);
     }
 
     @Override
@@ -62,8 +64,8 @@ public class ProductService implements IProductService {
     public Product updateProduct(UpdateProductRequest request, Long productId) {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
-                .map(productRepository :: save)
-                .orElseThrow(()-> new ResourceNotFoundException("Product not found!"));
+                .map(productRepository::save)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
@@ -79,33 +81,33 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDto> getAllProducts() {
+        return ProductMapper.toDtoList(productRepository.findAll());
     }
 
     @Override
-    public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategoryName(category);
+    public List<ProductDto> getProductsByCategory(String category) {
+        return ProductMapper.toDtoList(productRepository.findByCategoryName(category));
     }
 
     @Override
-    public List<Product> getProductsByBrand(String brand) {
-        return productRepository.getByBrand(brand);
+    public List<ProductDto> getProductsByBrand(String brand) {
+        return ProductMapper.toDtoList(productRepository.getByBrand(brand));
     }
 
     @Override
-    public List<Product> getProductsByCategoryAndBrand(String category, String brand) {
-        return productRepository.findByCategoryNameAndBrand(category, brand);
+    public List<ProductDto> getProductsByCategoryAndBrand(String category, String brand) {
+        return ProductMapper.toDtoList(productRepository.findByCategoryNameAndBrand(category, brand));
     }
 
     @Override
-    public List<Product> getProductsByName(String name) {
-        return productRepository.findByName(name);
+    public List<ProductDto> getProductsByName(String name) {
+        return ProductMapper.toDtoList(productRepository.findByName(name));
     }
 
     @Override
-    public List<Product> getProductsByBrandAndName(String brand, String name) {
-        return productRepository.findByBrandAndName(brand, name);
+    public List<ProductDto> getProductsByBrandAndName(String brand, String name) {
+        return ProductMapper.toDtoList(productRepository.findByBrandAndName(brand, name));
     }
 
     @Override
