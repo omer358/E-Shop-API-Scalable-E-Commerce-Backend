@@ -4,13 +4,16 @@ import com.omo.shop.dto.ProductDto;
 import com.omo.shop.models.Category;
 import com.omo.shop.models.Product;
 import com.omo.shop.service.category.CategoryMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ProductMapper {
 
     public static ProductDto toDto(Product product) {
+        log.info(product.toString());
         return new ProductDto(
                 product.getId(),
                 product.getName(),

@@ -100,7 +100,7 @@ public class  ProductController {
         return ResponseEntity.ok(new ApiResponse("success", products));
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/by-name")
     public ResponseEntity<ApiResponse> getProductsByName(@RequestParam("name") String productName) {
         List<ProductDto> products = productService.getProductsByName(productName);
         return ResponseEntity.ok(new ApiResponse("Success", products));
