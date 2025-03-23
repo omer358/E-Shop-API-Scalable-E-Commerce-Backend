@@ -1,6 +1,5 @@
 package com.omo.shop.dto;
 
-import com.omo.shop.models.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,5 +18,5 @@ public class ProductDto {
     private int inventory;
     private String description;
     private CategoryDto category;
-    private List<Image> images;
+    private List<ImageDto> images;
 }
