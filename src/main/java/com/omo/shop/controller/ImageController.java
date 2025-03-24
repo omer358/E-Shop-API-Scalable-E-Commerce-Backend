@@ -2,7 +2,6 @@ package com.omo.shop.controller;
 
 import com.omo.shop.dto.ImageDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
-import com.omo.shop.models.Image;
 import com.omo.shop.response.ApiResponse;
 import com.omo.shop.service.image.IImageService;
 import lombok.RequiredArgsConstructor;
@@ -42,15 +41,15 @@ public class ImageController {
 
     @GetMapping("/download/{imageId}")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) throws SQLException {
-        Image image = imageService.getImageById(imageId);
-        ByteArrayResource resource = new ByteArrayResource(
-                image
-                        .getImage()
-                        .getBytes(1L, (int) image.getImage().length()));
+        ImageDto imageDto = imageService.getImageById(imageId);
+
+        byte[] imageBytes = imageService.decodeBase64ToBytes(imageDto.getImageBase64());
+
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(image.getFileType()))
+                .contentType(MediaType.parseMediaType(imageDto.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + image.getFileName() + "\""
+                        "attachment; filename=\"" + imageDto.getFileName() + "\""
                 )
                 .body(resource);
     }
@@ -58,13 +57,13 @@ public class ImageController {
     @PutMapping("/{imageId}")
     public ResponseEntity<ApiResponse> updateImage(@PathVariable Long imageId, @RequestBody MultipartFile file) {
         try {
-            Image image = imageService.getImageById(imageId);
+            ImageDto image = imageService.getImageById(imageId);
             if (image != null) {
                 imageService.updateImage(file, imageId);
                 return ResponseEntity.ok(new ApiResponse("Update success!", image));
             }
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null))  ;
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("updated failed", INTERNAL_SERVER_ERROR));
     }
@@ -72,10 +71,10 @@ public class ImageController {
     @DeleteMapping("/{imageId}")
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable Long imageId) {
         try {
-            Image image = imageService.getImageById(imageId);
-            if (image != null) {
+            ImageDto imageDto = imageService.getImageById(imageId);
+            if (imageDto != null) {
                 imageService.deleteImageById(imageId);
-                return ResponseEntity.ok(new ApiResponse("deleted successfully!", image));
+                return ResponseEntity.ok(new ApiResponse("deleted successfully!", imageDto));
             }
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));

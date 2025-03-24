@@ -19,6 +19,7 @@ import java.util.Optional;
 public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
     @Override
     public ProductDto addProduct(AddProductRequest request) {
@@ -28,7 +29,7 @@ public class ProductService implements IProductService {
                     return categoryRepository.save(newCategory);
                 });
         request.setCategory(category);
-        return ProductMapper.toDto(productRepository.save(createProduct(request, category)));
+        return productMapper.toDto(productRepository.save(createProduct(request, category)));
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
@@ -47,7 +48,7 @@ public class ProductService implements IProductService {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Product not found!")
         );
-        return ProductMapper.toDto(product);
+        return productMapper.toDto(product);
     }
 
     @Override
@@ -82,32 +83,32 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> getAllProducts() {
-        return ProductMapper.toDtoList(productRepository.findAll());
+        return productMapper.toDtoList(productRepository.findAll());
     }
 
     @Override
     public List<ProductDto> getProductsByCategory(String category) {
-        return ProductMapper.toDtoList(productRepository.findByCategoryName(category));
+        return productMapper.toDtoList(productRepository.findByCategoryName(category));
     }
 
     @Override
     public List<ProductDto> getProductsByBrand(String brand) {
-        return ProductMapper.toDtoList(productRepository.getByBrand(brand));
+        return productMapper.toDtoList(productRepository.getByBrand(brand));
     }
 
     @Override
     public List<ProductDto> getProductsByCategoryAndBrand(String category, String brand) {
-        return ProductMapper.toDtoList(productRepository.findByCategoryNameAndBrand(category, brand));
+        return productMapper.toDtoList(productRepository.findByCategoryNameAndBrand(category, brand));
     }
 
     @Override
     public List<ProductDto> getProductsByName(String name) {
-        return ProductMapper.toDtoList(productRepository.findByNameContainingIgnoreCase(name));
+        return productMapper.toDtoList(productRepository.findByNameContainingIgnoreCase(name));
     }
 
     @Override
     public List<ProductDto> getProductsByBrandAndName(String brand, String name) {
-        return ProductMapper.toDtoList(productRepository.findByBrandAndName(brand, name));
+        return productMapper.toDtoList(productRepository.findByBrandAndName(brand, name));
     }
 
     @Override

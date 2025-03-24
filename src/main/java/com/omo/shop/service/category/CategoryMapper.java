@@ -2,18 +2,21 @@ package com.omo.shop.service.category;
 
 import com.omo.shop.dto.CategoryDto;
 import com.omo.shop.models.Category;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class CategoryMapper {
-    public static CategoryDto toDto(Category category) {
-        return new CategoryDto(
-                category.getId(),
-                category.getName()
-        );
+
+    private final ModelMapper modelMapper;
+
+    public CategoryDto toDto(Category category) {
+        return modelMapper.map(category, CategoryDto.class);
     }
 
-    public static Category toCategory(CategoryDto category) {
-        return new Category(
-                category.getName()
-        );
+    public Category toEntity(CategoryDto categoryDto) {
+        return modelMapper.map(categoryDto, Category.class);
     }
 }
