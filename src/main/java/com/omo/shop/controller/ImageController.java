@@ -32,7 +32,7 @@ public class ImageController {
             @RequestParam List<MultipartFile> files,
             @RequestParam Long productId) {
         try {
-            List<ImageDto> imageDtos = imageService.saveImage(files, productId);
+            List<ImageDto> imageDtos = imageService.saveImages(files, productId);
             return ResponseEntity.ok(new ApiResponse("successfully uploaded", imageDtos));
         } catch (Exception e) {
             return ResponseEntity

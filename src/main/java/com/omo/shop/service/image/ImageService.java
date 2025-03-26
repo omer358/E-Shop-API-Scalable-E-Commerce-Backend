@@ -48,28 +48,24 @@ public class ImageService implements IImageService {
     }
 
     @Override
-    public List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
+    public List<ImageDto> saveImages(List<MultipartFile> files, Long productId) {
         ProductDto productDto = productService.getProductById(productId);
         List<ImageDto> savedImageDto = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
-                Image image = new Image();
-                image.setFileName(file.getOriginalFilename());
-                image.setFileType(file.getContentType());
-                image.setImage((new SerialBlob(file.getBytes())));
-                image.setProduct(productMapper.toEntity(
-                        productDto)
-                );
-                String buildDownloadurl = "/api/v1/images/image/download";
-                String downloadUrl = buildDownloadurl + image.getId();
+                String buildDownloadUrl = "/api/v1/images/image/download/";
+                Image image = Image.builder()
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .image(new SerialBlob(file.getBytes()))
+                        .product(productMapper.toEntity(productDto))
+                        .build();
+                String downloadUrl = buildDownloadUrl + image.getId();
                 image.setDownloadUrl(downloadUrl);
                 Image savedImage = imageRepository.save(image);
-                savedImage.setDownloadUrl(buildDownloadurl + savedImage.getId());
+                savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getId());
                 imageRepository.save(savedImage);
-                ImageDto imageDto = new ImageDto();
-                imageDto.setId(savedImage.getId());
-                imageDto.setFileName(savedImage.getFileName());
-                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
+                ImageDto imageDto = imageMapper.toDto(image);
                 savedImageDto.add(imageDto);
             } catch (IOException | SQLException e) {
                 throw new RuntimeException(e.getMessage());
