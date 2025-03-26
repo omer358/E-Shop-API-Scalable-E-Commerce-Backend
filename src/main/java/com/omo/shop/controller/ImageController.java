@@ -57,6 +57,17 @@ public class ImageController {
                 .body(resource);
     }
 
+    @GetMapping("/{imageId}")
+    public ResponseEntity<ApiResponse> getImageDetailsById(@PathVariable Long imageId) {
+        try {
+            ImageDto imageDto = imageService.getImageById(imageId);
+
+            return ResponseEntity.ok(new ApiResponse("Success!", imageDto));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
     @PutMapping("/{imageId}")
     public ResponseEntity<ApiResponse> updateImage(@PathVariable Long imageId, @RequestBody MultipartFile file) {
         try {
