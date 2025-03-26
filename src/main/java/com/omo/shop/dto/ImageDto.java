@@ -12,5 +12,4 @@ public class ImageDto {
     private String fileName;
     private String fileType;
     private String downloadUrl;
-    private String imageBase64;
 }

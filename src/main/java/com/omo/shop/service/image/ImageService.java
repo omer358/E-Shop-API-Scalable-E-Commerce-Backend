@@ -36,6 +36,13 @@ public class ImageService implements IImageService {
     }
 
     @Override
+    public Image getImageEntityById(Long id) {
+        return imageRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("No image found with id: " + id)
+        );
+    }
+
+    @Override
     public void deleteImageById(Long id) {
         imageRepository.deleteById(id);
     }

@@ -2,6 +2,8 @@ package com.omo.shop.controller;
 
 import com.omo.shop.dto.ImageDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.infrastructure.utils.BlobUtil;
+import com.omo.shop.models.Image;
 import com.omo.shop.response.ApiResponse;
 import com.omo.shop.service.image.IImageService;
 import lombok.RequiredArgsConstructor;
@@ -41,15 +43,16 @@ public class ImageController {
 
     @GetMapping("/download/{imageId}")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) throws SQLException {
-        ImageDto imageDto = imageService.getImageById(imageId);
+        Image imageEntity = imageService.getImageEntityById(imageId);
 
-        byte[] imageBytes = imageService.decodeBase64ToBytes(imageDto.getImageBase64());
+        String base64Image = BlobUtil.convertBlobToBase64(imageEntity.getImage());
+        byte[] imageBytes = imageService.decodeBase64ToBytes(base64Image);
 
         ByteArrayResource resource = new ByteArrayResource(imageBytes);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(imageDto.getFileType()))
+                .contentType(MediaType.parseMediaType(imageEntity.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + imageDto.getFileName() + "\""
+                        "attachment; filename=\"" + imageEntity.getFileName() + "\""
                 )
                 .body(resource);
     }
