@@ -30,18 +30,66 @@ This project is a **Spring Boot-based shopping cart API** that manages products,
 
 ## **📂 Project Structure**  
 ```
-📦 cart-shop
- ┣ 📂 src/main/java/com/omo/shop
- ┃ ┣ 📂 controllers      # REST Controllers
- ┃ ┣ 📂 services         # Business Logic Layer
- ┃ ┣ 📂 repositories     # Data Access Layer (Spring Data JPA)
- ┃ ┣ 📂 models           # Entity Classes
- ┃ ┣ 📂 dtos             # DTOs for API Responses
- ┃ ┣ 📂 exceptions       # Custom Exceptions & Handlers
- ┃ ┗ 📜 CartShopApplication.java # Main Entry Point
- ┣ 📜 README.md          # Project Documentation
- ┣ 📜 pom.xml            # Maven Dependencies
- ┗ 📜 application.yml    # Configuration
+.
+└── shop
+    ├── controller
+    │   ├── CartController.java
+    │   ├── CartItemController.java
+    │   ├── CategoryController.java
+    │   ├── ImageController.java
+    │   └── ProductController.java
+    ├── dto
+    │   ├── CategoryDto.java
+    │   ├── ImageDto.java
+    │   └── ProductDto.java
+    ├── exceptions
+    │   ├── AlreadyExistsException.java
+    │   ├── ProductNotFoundException.java
+    │   └── ResourceNotFoundException.java
+    ├── infrastructure
+    │   ├── config
+    │   │   └── ModelMappingConfig.java
+    │   ├── logging
+    │   │   └── LoggingFilter.java
+    │   └── utils
+    │       └── BlobUtil.java
+    ├── models
+    │   ├── CartItem.java
+    │   ├── Cart.java
+    │   ├── Category.java
+    │   ├── Image.java
+    │   └── Product.java
+    ├── repository
+    │   ├── CartItemRepository.java
+    │   ├── CartRepository.java
+    │   ├── CategoryRepository.java
+    │   ├── ImageRepository.java
+    │   └── ProductRepository.java
+    ├── request
+    │   ├── AddProductRequest.java
+    │   └── UpdateProductRequest.java
+    ├── response
+    │   └── ApiResponse.java
+    ├── service
+    │   ├── cart
+    │   │   ├── CartItemService.java
+    │   │   ├── CartService.java
+    │   │   ├── ICartItemService.java
+    │   │   └── ICartService.java
+    │   ├── category
+    │   │   ├── CategoryMapper.java
+    │   │   ├── CategoryService.java
+    │   │   └── ICategoryService.java
+    │   ├── image
+    │   │   ├── IImageService.java
+    │   │   ├── ImageMapper.java
+    │   │   └── ImageService.java
+    │   └── product
+    │       ├── IProductService.java
+    │       ├── ProductMapper.java
+    │       └── ProductService.java
+    └── ShopApplication.java
+
 ```
 
 ---
