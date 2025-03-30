@@ -1,12 +1,16 @@
 package com.omo.shop.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -16,7 +20,6 @@ import java.util.Set;
 @Entity
 public class Cart {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private BigDecimal totalAmount = BigDecimal.ZERO;
     @OneToMany(
@@ -24,7 +27,7 @@ public class Cart {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private Set<CartItem> items;
+    private Set<CartItem> items = new HashSet<>();
 
 
     public void addItem(CartItem item) {
