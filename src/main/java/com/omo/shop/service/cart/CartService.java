@@ -6,6 +6,7 @@ import com.omo.shop.models.Cart;
 import com.omo.shop.models.CartItem;
 import com.omo.shop.repository.CartItemRepository;
 import com.omo.shop.repository.CartRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class CartService implements ICartService {
         return cartMapper.toDto(cart);
     }
 
+    @Transactional
     @Override
     public void clearCart(Long id) {
         CartDto cart = getCart(id);
