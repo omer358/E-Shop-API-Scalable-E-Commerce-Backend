@@ -1,5 +1,6 @@
 package com.omo.shop.service.cart;
 
+import com.omo.shop.dto.CartDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Cart;
 import com.omo.shop.models.CartItem;
@@ -16,20 +17,22 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final CartMapper cartMapper;
     private final AtomicLong cartIdGenerator = new AtomicLong(0);
 
     @Override
-    public Cart getCart(Long id) {
+    public CartDto getCart(Long id) {
 
-        return cartRepository.findById(id)
+        Cart cart = cartRepository.findById(id)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Cart not found!")
                 );
+        return cartMapper.toDto(cart);
     }
 
     @Override
     public void clearCart(Long id) {
-        Cart cart = getCart(id);
+        CartDto cart = getCart(id);
         cartItemRepository.deleteAllByCartId(id);
         cart.getItems().clear();
         cartRepository.deleteById(id);
@@ -37,7 +40,7 @@ public class CartService implements ICartService {
 
     @Override
     public BigDecimal getTotalPrice(Long id) {
-        Cart cart = getCart(id);
+        Cart cart = cartMapper.toEntity(getCart(id));
         return cart.getItems()
                 .stream()
                 .map(CartItem::getTotalPrice)

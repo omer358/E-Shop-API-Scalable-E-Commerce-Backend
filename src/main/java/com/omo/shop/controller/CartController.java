@@ -1,7 +1,7 @@
 package com.omo.shop.controller;
 
+import com.omo.shop.dto.CartDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
-import com.omo.shop.models.Cart;
 import com.omo.shop.response.ApiResponse;
 import com.omo.shop.service.cart.ICartService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class CartController {
     @GetMapping("/{cartId}")
     public ResponseEntity<ApiResponse> getCartById(@PathVariable Long cartId) {
         try {
-            Cart cart = cartService.getCart(cartId);
+            CartDto cart = cartService.getCart(cartId);
             return ResponseEntity.ok(new ApiResponse("Success", cart));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));

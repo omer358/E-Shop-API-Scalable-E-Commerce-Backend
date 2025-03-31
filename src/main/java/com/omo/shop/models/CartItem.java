@@ -1,6 +1,7 @@
 package com.omo.shop.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class CartItem {
     private Product product;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id")
+    @JsonBackReference
     private Cart cart;
 
     public void setTotalPrice() {

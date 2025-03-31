@@ -1,5 +1,7 @@
 package com.omo.shop.service.cart;
 
+import com.omo.shop.dto.CartDto;
+import com.omo.shop.dto.CartItemDto;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.models.Cart;
 import com.omo.shop.models.CartItem;
@@ -21,10 +23,12 @@ public class CartItemService implements ICartItemService {
     private final IProductService productService;
     private final ICartService cartService;
     private final ProductMapper productMapper;
+    private final CartItemMapper cartItemMapper;
+    private final CartMapper cartMapper;
 
     @Override
     public void addItemToCart(Long cartId, Long productId, Integer quantity) {
-        Cart cart = cartService.getCart(cartId);
+        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
         Product product = productMapper.toEntity(productService.getProductById(productId));
         CartItem cartItem = cart.getItems()
                 .stream()
@@ -48,15 +52,15 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart = cartService.getCart(cartId);
-        CartItem cartItem = getCartItem(cartId, productId);
+        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
+        CartItem cartItem = cartItemMapper.toEntity(getCartItem(cartId, productId));
         cart.removeItem(cartItem);
         cartRepository.save(cart);
     }
 
     @Override
     public void updateItemQuantity(Long cartId, Long productId, Integer quantity) {
-        Cart cart = cartService.getCart(cartId);
+        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
         cart.getItems()
                 .stream()
                 .filter(cartItem -> cartItem
@@ -75,8 +79,8 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public CartItem getCartItem(Long cartId, Long productId) {
-        Cart cart = cartService.getCart(cartId);
+    public CartItemDto getCartItem(Long cartId, Long productId) {
+        CartDto cart = cartService.getCart(cartId);
         return cart.getItems()
                 .stream()
                 .filter(cartItem1 ->
