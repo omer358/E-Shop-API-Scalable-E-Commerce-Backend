@@ -60,7 +60,8 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void updateItemQuantity(Long cartId, Long productId, Integer quantity) {
-        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
         cart.getItems()
                 .stream()
                 .filter(cartItem -> cartItem
@@ -72,8 +73,9 @@ public class CartItemService implements ICartItemService {
                     cartItem.setQuantity(cartItem.getQuantity() + quantity);
                     cartItem.setUnitPrice(cartItem.getProduct().getPrice());
                     cartItem.setTotalPrice();
+                    //FIX: problem with setting the total amount to the cart after updating the cartitem
                 });
-        BigDecimal totalAmount = cart.getTotalAmount();
+        BigDecimal totalAmount = cart.getItems().stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
         cart.setTotalAmount(totalAmount);
         cartRepository.save(cart);
     }
