@@ -28,7 +28,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void addItemToCart(Long cartId, Long productId, Integer quantity) {
-        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
         Product product = productMapper.toEntity(productService.getProductById(productId));
         CartItem cartItem = cart.getItems()
                 .stream()
