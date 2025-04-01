@@ -52,7 +52,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart = cartMapper.toEntity(cartService.getCart(cartId));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(()-> new ResourceNotFoundException("Cart not found"));
         CartItem cartItem = cartItemMapper.toEntity(getCartItem(cartId, productId));
         cart.removeItem(cartItem);
         cartRepository.save(cart);
