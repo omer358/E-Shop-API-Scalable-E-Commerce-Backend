@@ -1,10 +1,8 @@
 package com.omo.shop.cart.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.omo.shop.user.model.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +28,9 @@ public class Cart {
     )
     @JsonManagedReference
     private Set<CartItem> items = new HashSet<>();
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
     public void addItem(CartItem item) {

@@ -1,6 +1,7 @@
 package com.omo.shop.cart.service;
 
 import com.omo.shop.cart.dto.CartDto;
+import com.omo.shop.cart.model.Cart;
 
 import java.math.BigDecimal;
 
@@ -10,4 +11,6 @@ public interface ICartService {
     BigDecimal getTotalPrice(Long id);
 
     Long initializeNewCart();
+
+    Cart getCartByUserId(Long userId);
 }
