@@ -5,7 +5,9 @@ import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.service.ICartService;
 import com.omo.shop.exceptions.InsufficientStockException;
 import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.enums.OrderStatus;
+import com.omo.shop.order.mapper.OrderMapper;
 import com.omo.shop.order.model.Order;
 import com.omo.shop.order.model.OrderItem;
 import com.omo.shop.order.repository.OrderRepository;
@@ -27,10 +29,11 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ICartService cartService;
+    private final OrderMapper orderMapper;
 
     @Transactional
     @Override
-    public Order placeOrder(Long userId) {
+    public OrderDto placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
         Order order = createOrder(cart);
         List<OrderItem> orderItems = createOrderItems(order, cart);
@@ -38,20 +41,22 @@ public class OrderService implements IOrderService {
         order.setTotalPrice(calculateTotalAmount(orderItems));
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(cart.getId());
-        return savedOrder;
+        return orderMapper.toDto(savedOrder);
     }
 
     @Override
-    public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId)
+    public OrderDto getOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Order not found!")
                 );
+        return orderMapper.toDto(order);
     }
 
     @Override
-    public List<Order> getUserOrders(Long userId) {
-        return orderRepository.findOrdersByUserId(userId);
+    public List<OrderDto> getUserOrders(Long userId) {
+        List<Order> orderList = orderRepository.findOrdersByUserId(userId);
+        return orderMapper.toDtoList(orderList);
     }
 
     private Order createOrder(Cart cart) {

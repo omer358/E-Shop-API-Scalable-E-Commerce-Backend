@@ -1,12 +1,12 @@
 package com.omo.shop.order.service;
 
-import com.omo.shop.order.model.Order;
+import com.omo.shop.order.dto.OrderDto;
 
 import java.util.List;
 
 public interface IOrderService {
 
-    Order placeOrder (Long userId);
-    Order getOrder(Long orderId);
-    List<Order> getUserOrders(Long userId);
+    OrderDto placeOrder (Long userId);
+    OrderDto getOrder(Long orderId);
+    List<OrderDto> getUserOrders(Long userId);
 }

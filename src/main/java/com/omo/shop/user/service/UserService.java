@@ -2,6 +2,8 @@ package com.omo.shop.user.service;
 
 import com.omo.shop.exceptions.AlreadyExistsException;
 import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.user.UserMapper;
+import com.omo.shop.user.dto.UserDto;
 import com.omo.shop.user.model.User;
 import com.omo.shop.user.repository.UserRepository;
 import com.omo.shop.user.request.UserCreationRequest;
@@ -15,16 +17,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId)
+    public UserDto getUserById(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
+        return userMapper.toDto(user);
     }
 
     @Override
-    public User createUser(UserCreationRequest userRequest) {
+    public UserDto createUser(UserCreationRequest userRequest) {
         return Optional.of(userRequest)
                 .filter(user ->
                         !userRepository.existsByEmail(userRequest.getEmail()))
@@ -35,7 +39,7 @@ public class UserService implements IUserService {
                             .email(userRequest.getEmail())
                             .password(userRequest.getPassword())
                             .build();
-                    return userRepository.save(user);
+                    return userMapper.toDto(userRepository.save(user));
                 }).orElseThrow(() ->
                         new AlreadyExistsException(
                                 "User with" + userRequest.getEmail() + "already exists!"
@@ -43,8 +47,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User updateUser(Long userId, UserUpdateRequest userRequest) {
-        return userRepository.findById(userId)
+    public UserDto updateUser(Long userId, UserUpdateRequest userRequest) {
+        User user = userRepository.findById(userId)
                 .map(existingUser -> {
                     existingUser.setFirstName(userRequest.getFirstName());
                     existingUser.setLastName((userRequest.getLastName()));
@@ -52,6 +56,7 @@ public class UserService implements IUserService {
                 }).orElseThrow(
                         () -> new ResourceNotFoundException("User not found")
                 );
+        return userMapper.toDto(user);
     }
 
     @Override
