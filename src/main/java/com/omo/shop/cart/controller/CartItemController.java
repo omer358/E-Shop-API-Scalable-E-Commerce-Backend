@@ -1,9 +1,12 @@
 package com.omo.shop.cart.controller;
 
+import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.service.ICartItemService;
 import com.omo.shop.cart.service.ICartService;
 import com.omo.shop.common.response.ApiResponse;
 import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.user.model.User;
+import com.omo.shop.user.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +19,16 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class CartItemController {
     private final ICartItemService cartItemService;
     private final ICartService cartService;
+    private final IUserService userService;
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addItemToCart(
-            @RequestParam(required = false) Long cartId,
             @RequestParam Long productId,
             @RequestParam Integer quantity) {
         try {
-            if (cartId == null) {
-                cartId = cartService.initializeNewCart();
-            }
-            cartItemService.addItemToCart(cartId, productId, quantity);
+            User user = userService.getUserById(1L);
+            Cart cart = cartService.initializeNewCart(user);
+            cartItemService.addItemToCart(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse(
                     "item added successfully",
                     null

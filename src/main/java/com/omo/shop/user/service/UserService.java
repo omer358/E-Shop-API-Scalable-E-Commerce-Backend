@@ -20,11 +20,18 @@ public class UserService implements IUserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto getUserById(Long userId) {
+    public UserDto getUserDtoById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
     }
 
     @Override

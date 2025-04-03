@@ -7,6 +7,7 @@ import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.repository.CartItemRepository;
 import com.omo.shop.cart.repository.CartRepository;
 import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,17 +52,19 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public Long initializeNewCart() {
-        Cart newCart = new Cart();
-        Long newCartId = cartIdGenerator.incrementAndGet();
-        newCart.setId(newCartId);
-        return cartRepository.save(newCart).getId();
+    public Cart initializeNewCart(User user) {
+        return cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartRepository.save(cart);
+                });
     }
 
     @Override
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
-                .orElseThrow(()->
+                .orElseThrow(() ->
                         new ResourceNotFoundException("cart not found!"));
     }
 }
