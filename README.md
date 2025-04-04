@@ -1,177 +1,180 @@
-# **🛒 Cart Shop – Spring Boot E-Commerce Cart API**  
+Alright, let’s level up your README to reflect the **full capabilities** of the backend project and **impress the devs** who’ll be reading it. Here's the updated version with more advanced features, scalability focus, and professional flair:
+
+---
+
+# **🛒 E-Shop API – Spring Boot Backend for E-Commerce**
 
 ## **📌 Overview**  
-This project is a **Spring Boot-based shopping cart API** that manages products, carts, and checkout functionalities. It demonstrates **clean architecture, RESTful principles, and best practices** in Java and Spring Boot.  
+**E-Shop API** is a full-featured, scalable **Spring Boot backend** powering an e-commerce application. It handles user authentication, product management, cart operations, and secure order processing using **clean architecture, robust security practices**, and **modular design principles**. Built for real-world deployment with scalability, maintainability, and developer ergonomics in mind.
 
 ---
 
-## **🚀 Features**  
-✅ **Cart Management** – Add, remove, and update cart items.  
-✅ **Product Management** – List products with prices and stock levels.  
-✅ **Total Calculation** – Automatically updates the cart total amount.  
-✅ **User Authentication** – Secure API endpoints (JWT authentication).  
-✅ **Database Integration** – Uses PostgreSQL (or MySQL).  
-✅ **Exception Handling** – Global exception handling with meaningful responses.  
+## **🚀 Features**
+- ✅ **JWT-Based Authentication & Role-Based Access Control (RBAC)**
+- ✅ **Cart & Order Management** – Add, update, remove, and checkout
+- ✅ **Product & Category Management** – CRUD operations with stock handling
+- ✅ **Image Upload & Storage**
+- ✅ **Payment Gateway Integration** – Seamlessly integrated with **Moyasar**
+- ✅ **Custom Exception Handling** – Global handlers for graceful error responses
+- ✅ **DTO Mapping with MapStruct**
+- ✅ **Swagger/OpenAPI** Documentation
+- ✅ **Modular Service Layer with Interface Segregation**
+- ✅ **CI-Ready** – Easily pluggable into GitHub Actions / Jenkins pipelines
+- ✅ **Database Agnostic** – Supports PostgreSQL or MySQL with JPA abstraction
 
 ---
 
-## **🛠️ Tech Stack**  
-- **Java 17**  
-- **Spring Boot 3.x**  
-- **Spring Data JPA**  
-- **Spring Security (JWT)**  
-- **PostgreSQL / MySQL**  
-- **Lombok**  
-- **MapStruct (DTO Mapping)**  
-- **Docker (Optional)**  
-- **JUnit & Mockito (Testing)**  
+## **🛠️ Tech Stack**
+- **Java 17**
+- **Spring Boot 3.x**
+- **Spring Security + JWT**
+- **Spring Data JPA**
+- **PostgreSQL / MySQL**
+- **Moyasar Payment API**
+- **Lombok**
+- **Docker**
+- **JUnit & Mockito**
+- **Swagger (OpenAPI 3)**
 
 ---
 
-## **📂 Project Structure**  
+## **📂 Project Structure**
+Following **clean and layered architecture** principles:
 ```
 .
 └── shop
-    ├── controller
-    │   ├── CartController.java
-    │   ├── CartItemController.java
-    │   ├── CategoryController.java
-    │   ├── ImageController.java
-    │   └── ProductController.java
-    ├── dto
-    │   ├── CategoryDto.java
-    │   ├── ImageDto.java
-    │   └── ProductDto.java
+    ├── cart
+    ├── category
+    ├── common
     ├── exceptions
-    │   ├── AlreadyExistsException.java
-    │   ├── ProductNotFoundException.java
-    │   └── ResourceNotFoundException.java
-    ├── infrastructure
-    │   ├── config
-    │   │   └── ModelMappingConfig.java
-    │   ├── logging
-    │   │   └── LoggingFilter.java
-    │   └── utils
-    │       └── BlobUtil.java
-    ├── models
-    │   ├── CartItem.java
-    │   ├── Cart.java
-    │   ├── Category.java
-    │   ├── Image.java
-    │   └── Product.java
-    ├── repository
-    │   ├── CartItemRepository.java
-    │   ├── CartRepository.java
-    │   ├── CategoryRepository.java
-    │   ├── ImageRepository.java
-    │   └── ProductRepository.java
-    ├── request
-    │   ├── AddProductRequest.java
-    │   └── UpdateProductRequest.java
-    ├── response
-    │   └── ApiResponse.java
-    ├── service
-    │   ├── cart
-    │   │   ├── CartItemService.java
-    │   │   ├── CartService.java
-    │   │   ├── ICartItemService.java
-    │   │   └── ICartService.java
-    │   ├── category
-    │   │   ├── CategoryMapper.java
-    │   │   ├── CategoryService.java
-    │   │   └── ICategoryService.java
-    │   ├── image
-    │   │   ├── IImageService.java
-    │   │   ├── ImageMapper.java
-    │   │   └── ImageService.java
-    │   └── product
-    │       ├── IProductService.java
-    │       ├── ProductMapper.java
-    │       └── ProductService.java
-    └── ShopApplication.java
+    ├── image
+    ├── order
+    ├── product
+    ├── ShopApplication.java
+    └── user
 
 ```
 
 ---
 
-## **⚙️ Installation & Setup**  
+## **⚙️ Setup & Installation**
 
-### **1️⃣ Clone the Repository**  
+### **1️⃣ Clone the Repo**
 ```bash
-git clone https://github.com/yourusername/cart-shop.git
+git clone https://github.com/omer358/cart-shop.git
 cd cart-shop
 ```
 
-### **2️⃣ Configure the Database**  
-Edit `application.yml` to set up your **PostgreSQL/MySQL** database:  
+### **2️⃣ Configure the Database**
+Update `application.yml`:
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cartshop_db
+    url: jdbc:postgresql://localhost:5432/eshop_db
     username: your_db_user
     password: your_db_password
 ```
 
-### **3️⃣ Build & Run the Application**  
-Using **Maven**:  
+### **3️⃣ Run the App**
+With **Maven**:
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
-
-Using **Docker (Optional)**:  
+<!--
+Or with **Docker**:
 ```bash
 docker-compose up --build
 ```
+-->
+---
+
+## **📡 API Endpoints (Sample)**
+
+| Method   | Endpoint                      | Description                 | Auth? |
+|----------|-------------------------------|-----------------------------|-------|
+| `POST`   | `/api/cart/add`               | Add item to cart            | ✅    |
+| `GET`    | `/api/cart`                   | View user cart              | ✅    |
+| `POST`   | `/api/cart/checkout`          | Checkout current cart       | ✅    |
+| `POST`   | `/api/products`               | Add new product             | ✅ (Admin) |
+| `GET`    | `/api/products`               | List all products           | ❌    |
+| `POST`   | `/api/auth/register`          | Register new user           | ❌    |
+| `POST`   | `/api/auth/login`             | Login & get JWT             | ❌    |
+
+📘 See full API documentation in **Swagger UI**:  
+👉 http://localhost:8080/swagger-ui/index.html  
 
 ---
 
-## **📝 API Endpoints**  
-| Method | Endpoint               | Description             | Auth Required? |
-|--------|------------------------|-------------------------|---------------|
-| `POST` | `/api/cart/add`        | Add item to cart       | ✅ Yes |
-| `DELETE` | `/api/cart/remove/{id}` | Remove item from cart | ✅ Yes |
-| `GET` | `/api/cart`             | Get cart details       | ✅ Yes |
-| `POST` | `/api/cart/checkout`   | Checkout cart          | ✅ Yes |
+## **🛡️ Authentication & Security**
+- **JWT Bearer Tokens** for stateless auth
+- Supports **user roles** (Admin, Customer)
+- Secure headers & endpoint protection via **Spring Security**
 
-📌 **Full API Docs** → [Postman Collection](#) (Link to API collection)  
-
----
-
-## **🛡️ Security & Authentication**  
-- Uses **JWT Authentication** for secured endpoints.  
-- Register/Login to get a JWT token and include it in the `Authorization` header.  
-
-Example:  
+Sample request header:
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
 ```
-Authorization: Bearer your-jwt-token
-```
 
 ---
+<!--
+## **💳 Payment Integration**
+🔌 Integrated with **Moyasar API** to handle card payments.  
+- Secured payment flow using tokenization  
+- Supports order reference tracking  
+- Can be extended to support Stripe, PayPal, etc.
+-->
+---
 
-## **✅ Testing**  
-Run **unit tests** using JUnit & Mockito:  
+## **✅ Testing**
+Run unit and service-level tests:
 ```bash
 mvn test
 ```
+Frameworks used:
+- **JUnit 5**
+- **Mockito**
+- **AssertJ**
+
+---
+<!-- 
+## **📦 Docker Support**
+Use `Dockerfile` and `docker-compose.yml` for seamless deployment:
+```bash
+docker-compose up --build
+```
+-->
 
 ---
 
-## **🤝 Contributing**  
+## **🌍 Deployment Ready**
+The app is prepped for deployment with:
+- Environment-specific configs  
+- CI/CD friendly structure (supports GitHub Actions, Jenkins)  
+- Production-grade logging and error responses
+
+---
+
+## **🤝 Contributing**
+Want to improve this?  
 1. Fork the repo  
-2. Create a new branch (`feature-name`)  
-3. Commit and push changes  
-4. Open a **Pull Request**  
+2. Create your feature branch (`git checkout -b feature/YourFeature`)  
+3. Commit your changes  
+4. Push and open a PR 🚀
 
 ---
 
-## **📜 License**  
-This project is licensed under the **Apache 2.0 License** – feel free to use and modify it.  
+## **📜 License**
+Licensed under **Apache 2.0** – free to use, modify, distribute.
 
 ---
 
-## **📞 Contact**  
-👤 **Omar**  
-📧 Email: omermaki358@gmail.com <br>
-🔗 LinkedIn: [https://www.linkedin.com/in/omer-maki](#)  <br>
-🚀 GitHub: [omer358](https://github.com/omer358)  <br>
+## **📞 Contact**
+👤 **Omar Elkhalifa**  
+📧 Email: omermaki358@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/omer-maki)  
+🐙 [GitHub](https://github.com/omer358)
+
+---
+
+Would you like me to push this to the actual `README.md` file in your repo? Or generate it as a markdown file you can copy/paste?
