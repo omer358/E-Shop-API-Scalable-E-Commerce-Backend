@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +21,7 @@ public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
-    private final AtomicLong cartIdGenerator = new AtomicLong(0);
+
 
     @Override
     public CartDto getCart(Long id) {
@@ -36,11 +36,22 @@ public class CartService implements ICartService {
     @Transactional
     @Override
     public void clearCart(Long id) {
-        CartDto cart = getCart(id);
-        cartItemRepository.deleteAllByCartId(id);
-        cart.getItems().clear();
-        cartRepository.deleteById(id);
+        // Delete all cart items first
+        cartItemRepository.deleteByCartId(id);
+
+        Optional<Cart> cartOptional = cartRepository.findById(id);
+        if (cartOptional.isPresent()) {
+            Cart cart = cartOptional.get();
+            // Remove the reference from the user before deleting the cart
+            if (cart.getUser() != null) {
+                cart.getUser().setCart(null);
+            }
+            cartRepository.delete(cart);
+        } else {
+            throw new ResourceNotFoundException("Cart not found for ID: " + id);
+        }
     }
+
 
     @Override
     public BigDecimal getTotalPrice(Long id) {

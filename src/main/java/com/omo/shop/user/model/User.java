@@ -30,8 +30,7 @@ public class User {
     private Cart cart;
     @OneToMany(
             mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = {CascadeType.MERGE, CascadeType.DETACH}
     )
     @JsonManagedReference
     private List<Order> orders;

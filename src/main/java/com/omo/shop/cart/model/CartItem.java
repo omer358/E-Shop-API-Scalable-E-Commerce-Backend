@@ -25,7 +25,7 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "cart_id")
     @JsonBackReference
     private Cart cart;

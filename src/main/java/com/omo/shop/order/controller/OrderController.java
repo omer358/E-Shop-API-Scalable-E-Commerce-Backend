@@ -15,7 +15,8 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RequiredArgsConstructor
-@RestController("${api.prefix}/orders")
+@RestController
+@RequestMapping("${api.prefix}/orders")
 public class OrderController {
     private final IOrderService orderService;
 

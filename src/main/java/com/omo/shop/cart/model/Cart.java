@@ -31,7 +31,9 @@ public class Cart {
     )
     @JsonManagedReference
     private Set<CartItem> items = new HashSet<>();
-    @OneToOne
+    @OneToOne(
+            cascade = CascadeType.DETACH
+    )
     @JoinColumn(name = "user_id")
     private User user;
 
