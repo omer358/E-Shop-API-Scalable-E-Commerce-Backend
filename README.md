@@ -1,7 +1,3 @@
-Alright, let’s level up your README to reflect the **full capabilities** of the backend project and **impress the devs** who’ll be reading it. Here's the updated version with more advanced features, scalability focus, and professional flair:
-
----
-
 # **🛒 E-Shop API – Spring Boot Backend for E-Commerce**
 
 ## **📌 Overview**  
@@ -176,5 +172,3 @@ Licensed under **Apache 2.0** – free to use, modify, distribute.
 🐙 [GitHub](https://github.com/omer358)
 
 ---
-
-Would you like me to push this to the actual `README.md` file in your repo? Or generate it as a markdown file you can copy/paste?
