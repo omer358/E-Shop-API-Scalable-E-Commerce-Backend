@@ -5,6 +5,8 @@ import com.omo.shop.exceptions.InsufficientStockException;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.service.IOrderService;
+import com.omo.shop.user.model.User;
+import com.omo.shop.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +21,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequestMapping("${api.prefix}/orders")
 public class OrderController {
     private final IOrderService orderService;
+    private final UserService userService;
 
     @PostMapping("/place-order")
-    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
+    public ResponseEntity<ApiResponse> createOrder() {
         try {
-            OrderDto orderDto = orderService.placeOrder(userId);
+            User user = userService.getAuthenticatedUser();
+            OrderDto orderDto = orderService.placeOrder(user.getId());
             return ResponseEntity.ok(new ApiResponse("Success", orderDto));
         } catch (InsufficientStockException e) {
             return ResponseEntity.status(CONFLICT)

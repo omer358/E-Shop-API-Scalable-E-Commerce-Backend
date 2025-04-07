@@ -9,6 +9,10 @@ import com.omo.shop.user.repository.UserRepository;
 import com.omo.shop.user.request.UserCreationRequest;
 import com.omo.shop.user.request.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,6 +22,7 @@ import java.util.Optional;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto getUserDtoById(Long userId) {
@@ -44,7 +49,7 @@ public class UserService implements IUserService {
                             .firstName(userRequest.getFirstName())
                             .lastName(userRequest.getLastName())
                             .email(userRequest.getEmail())
-                            .password(userRequest.getPassword())
+                            .password(passwordEncoder.encode(userRequest.getPassword()))
                             .build();
                     return userMapper.toDto(userRepository.save(user));
                 }).orElseThrow(() ->
@@ -69,5 +74,16 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
     }
 }

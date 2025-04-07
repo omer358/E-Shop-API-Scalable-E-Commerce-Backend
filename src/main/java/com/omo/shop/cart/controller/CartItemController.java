@@ -9,9 +9,11 @@ import com.omo.shop.user.model.User;
 import com.omo.shop.user.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class CartItemController {
             @RequestParam Long productId,
             @RequestParam Integer quantity) {
         try {
-            User user = userService.getUserById(1L);
+            User user = userService.getAuthenticatedUser();
             Cart cart = cartService.initializeNewCart(user);
             cartItemService.addItemToCart(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse(
@@ -34,7 +36,11 @@ public class CartItemController {
                     null
             ));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), null));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(UNAUTHORIZED)
+                    .body(new ApiResponse(e.getMessage(), null));
         }
     }
 

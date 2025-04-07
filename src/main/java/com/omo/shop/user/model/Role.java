@@ -25,4 +25,8 @@ public class Role {
             mappedBy = "roles"
     )
     private Collection<User> users = new HashSet<>();
+
+    public Role(String name) {
+        this.name = name;
+    }
 }
