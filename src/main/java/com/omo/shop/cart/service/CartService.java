@@ -8,9 +8,10 @@ import com.omo.shop.cart.repository.CartItemRepository;
 import com.omo.shop.cart.repository.CartRepository;
 import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.user.model.User;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -33,7 +34,8 @@ public class CartService implements ICartService {
         return cartMapper.toDto(cart);
     }
 
-    @Transactional
+    //TODO: ATTENTION: THE PROGAGATION MAY LEAD TO INCONSISTENCIES IF THE CALLING METHOD `placeOrder failed
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void clearCart(Long id) {
         // Delete all cart items first
