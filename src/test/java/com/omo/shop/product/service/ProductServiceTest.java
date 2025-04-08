@@ -103,7 +103,7 @@ class ProductServiceTest {
         assertEquals(productDto1.getName(),product.getName());
 
         verify(productRepository).findById(any());
-        verify(productMapper).toDto(any()z);
+        verify(productMapper).toDto(any());
     }
 
     @Test
