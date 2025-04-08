@@ -3,15 +3,15 @@ package com.omo.shop.category.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.omo.shop.product.model.Product;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 public class Category {
     @Id
@@ -21,8 +21,4 @@ public class Category {
     @OneToMany(mappedBy = "category")
     @JsonIgnore
     private List<Product> products;
-
-    public Category(String name) {
-        this.name = name;
-    }
 }

@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryMapper {
@@ -18,5 +21,9 @@ public class CategoryMapper {
 
     public Category toEntity(CategoryDto categoryDto) {
         return modelMapper.map(categoryDto, Category.class);
+    }
+
+    public List<CategoryDto> toDtoList(List<Category> categories) {
+        return categories.stream().map(this::toDto).collect(Collectors.toList());
     }
 }

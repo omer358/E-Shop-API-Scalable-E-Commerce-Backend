@@ -3,6 +3,7 @@ package com.omo.shop.product.dto;
 import com.omo.shop.category.dto.CategoryDto;
 import com.omo.shop.image.dto.ImageDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductDto {
     private Long id;
     private String name;

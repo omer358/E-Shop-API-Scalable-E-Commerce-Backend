@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +23,11 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto addProduct(AddProductRequest request) {
-        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
-                .orElseGet(() -> {
-                    Category newCategory = new Category(request.getCategory().getName());
-                    return categoryRepository.save(newCategory);
-                });
-        request.setCategory(category);
+        Category category = categoryRepository.findById(request.getCategory())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "There is no category with the id"
+                                        + request.getCategory()));
         return productMapper.toDto(productRepository.save(createProduct(request, category)));
     }
 
@@ -77,7 +75,11 @@ public class ProductService implements IProductService {
         existingProduct.setDescription(request.getDescription());
         existingProduct.setInventory(request.getInventory());
 
-        Category category = categoryRepository.findByName(request.getCategory().getName());
+        Category category = categoryRepository.findById(request.getCategory())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "There is no category with the id"
+                                        + request.getCategory()));
         existingProduct.setCategory(category);
         return existingProduct;
     }

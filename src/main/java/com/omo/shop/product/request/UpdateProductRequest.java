@@ -1,6 +1,5 @@
 package com.omo.shop.product.request;
 
-import com.omo.shop.category.model.Category;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,5 +12,5 @@ public class UpdateProductRequest {
     private BigDecimal price;
     private int inventory;
     private String description;
-    private Category category;
+    private Long category;
 }
