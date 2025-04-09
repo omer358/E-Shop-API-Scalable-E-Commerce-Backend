@@ -61,26 +61,42 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product updateProduct(UpdateProductRequest request, Long productId) {
-        return productRepository.findById(productId)
+    public ProductDto updateProduct(UpdateProductRequest request, Long productId) {
+        //TODO: HANDLE THE NULL VALUE BY NOT LETTING THEM CHANGE THE ORIGINAL VALUES
+        Product updatedProduct = productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository::save)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        return productMapper.toDto(updatedProduct);
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
-        existingProduct.setName(request.getName());
-        existingProduct.setBrand(request.getBrand());
-        existingProduct.setPrice(request.getPrice());
-        existingProduct.setDescription(request.getDescription());
-        existingProduct.setInventory(request.getInventory());
+        if (request.getName() != null) {
+            existingProduct.setName(request.getName());
+        }
 
-        Category category = categoryRepository.findById(request.getCategory())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "There is no category with the id"
-                                        + request.getCategory()));
-        existingProduct.setCategory(category);
+        if (request.getBrand() != null) {
+            existingProduct.setBrand(request.getBrand());
+        }
+
+        if (request.getPrice() != null) {
+            existingProduct.setPrice(request.getPrice());
+        }
+
+        if (request.getDescription() != null) {
+            existingProduct.setDescription(request.getDescription());
+        }
+
+        if (request.getInventory() != null) {
+            existingProduct.setInventory(request.getInventory());
+        }
+
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findById(request.getCategory())
+                    .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.CATEGORY_NOT_FOUND));
+            existingProduct.setCategory(category);
+        }
+
         return existingProduct;
     }
 

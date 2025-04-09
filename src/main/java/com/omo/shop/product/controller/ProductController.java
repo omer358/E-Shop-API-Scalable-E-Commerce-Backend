@@ -57,9 +57,9 @@ public class  ProductController {
             @RequestBody UpdateProductRequest updatedProduct
     ) {
         try {
-            Product product = productService.updateProduct(updatedProduct, id);
+            ProductDto productDto = productService.updateProduct(updatedProduct, id);
             return ResponseEntity.ok(
-                    new ApiResponse("product updated successfully", product)
+                    new ApiResponse("product updated successfully", productDto)
             );
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
