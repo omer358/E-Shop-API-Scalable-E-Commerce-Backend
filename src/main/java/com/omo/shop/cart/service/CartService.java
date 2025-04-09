@@ -6,7 +6,8 @@ import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.repository.CartItemRepository;
 import com.omo.shop.cart.repository.CartRepository;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.user.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class CartService implements ICartService {
 
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Cart not found!")
+                        () -> new ResourceNotFoundException(ExceptionMessages.CART_NOT_FOUND)
                 );
         return cartMapper.toDto(cart);
     }
@@ -50,7 +51,7 @@ public class CartService implements ICartService {
             }
             cartRepository.delete(cart);
         } else {
-            throw new ResourceNotFoundException("Cart not found for ID: " + id);
+            throw new ResourceNotFoundException(ExceptionMessages.CART_NOT_FOUND);
         }
     }
 
@@ -78,6 +79,6 @@ public class CartService implements ICartService {
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("cart not found!"));
+                        new ResourceNotFoundException(ExceptionMessages.CART_NOT_FOUND));
     }
 }

@@ -3,8 +3,9 @@ package com.omo.shop.order.service;
 import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.service.ICartService;
-import com.omo.shop.exceptions.InsufficientStockException;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.InsufficientStockException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.enums.OrderStatus;
 import com.omo.shop.order.mapper.OrderMapper;
@@ -48,7 +49,7 @@ public class OrderService implements IOrderService {
     public OrderDto getOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Order not found!")
+                        () -> new ResourceNotFoundException(ExceptionMessages.ORDER_NOT_FOUND)
                 );
         return orderMapper.toDto(order);
     }

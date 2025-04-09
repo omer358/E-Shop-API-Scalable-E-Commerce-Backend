@@ -1,7 +1,7 @@
 package com.omo.shop.image.controller;
 
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.image.dto.ImageDto;
 import com.omo.shop.image.model.Image;
 import com.omo.shop.image.service.IImageService;

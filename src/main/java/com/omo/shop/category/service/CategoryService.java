@@ -4,8 +4,9 @@ import com.omo.shop.category.dto.CategoryDto;
 import com.omo.shop.category.mapper.CategoryMapper;
 import com.omo.shop.category.model.Category;
 import com.omo.shop.category.repository.CategoryRepository;
-import com.omo.shop.exceptions.AlreadyExistsException;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.AlreadyExistsException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.CATEGORY_NOT_FOUND));
         return categoryMapper.toDto(category);
     }
 
@@ -68,7 +69,7 @@ public class CategoryService implements ICategoryService {
     public void deleteCategory(Long id) {
         categoryRepository.findById(id)
                 .ifPresentOrElse(categoryRepository::delete, () -> {
-                    throw new ResourceNotFoundException("Category not found");
+                    throw new ResourceNotFoundException(ExceptionMessages.CATEGORY_NOT_FOUND);
                 });
     }
 }

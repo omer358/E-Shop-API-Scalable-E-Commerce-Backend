@@ -2,8 +2,8 @@ package com.omo.shop.cart.controller;
 
 import com.omo.shop.cart.dto.CartDto;
 import com.omo.shop.cart.service.ICartService;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

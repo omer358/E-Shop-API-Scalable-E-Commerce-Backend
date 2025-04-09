@@ -1,6 +1,7 @@
 package com.omo.shop.security.service;
 
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.security.userprincipal.ShopUserDetails;
 import com.omo.shop.user.model.User;
 import com.omo.shop.user.repository.UserRepository;
@@ -18,7 +19,7 @@ public class ShopUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.USER_NOT_FOUND));
         return ShopUserDetails.buildUserDetails(user);
     }
 }

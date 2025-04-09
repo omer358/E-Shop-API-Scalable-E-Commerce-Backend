@@ -1,4 +1,4 @@
-package com.omo.shop.exceptions;
+package com.omo.shop.common.exceptions;
 
 public class InsufficientStockException extends RuntimeException{
     public InsufficientStockException(String message){

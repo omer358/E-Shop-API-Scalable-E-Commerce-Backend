@@ -1,9 +1,8 @@
 package com.omo.shop.product.controller;
 
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.product.dto.ProductDto;
-import com.omo.shop.product.model.Product;
 import com.omo.shop.product.request.AddProductRequest;
 import com.omo.shop.product.request.UpdateProductRequest;
 import com.omo.shop.product.service.IProductService;

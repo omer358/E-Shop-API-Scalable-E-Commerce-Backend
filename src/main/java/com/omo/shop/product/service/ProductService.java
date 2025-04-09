@@ -2,7 +2,8 @@ package com.omo.shop.product.service;
 
 import com.omo.shop.category.model.Category;
 import com.omo.shop.category.repository.CategoryRepository;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.product.dto.ProductDto;
 import com.omo.shop.product.mapper.ProductMapper;
 import com.omo.shop.product.model.Product;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.omo.shop.common.constants.ExceptionMessages.PRODUCT_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +48,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Product not found!")
+                () -> new ResourceNotFoundException(PRODUCT_NOT_FOUND)
         );
         return productMapper.toDto(product);
     }
@@ -55,7 +58,7 @@ public class ProductService implements IProductService {
         productRepository.findById(id).ifPresentOrElse(
                 productRepository::delete,
                 () -> {
-                    throw new ResourceNotFoundException("Product not found");
+                    throw new ResourceNotFoundException(PRODUCT_NOT_FOUND);
                 }
         );
     }
@@ -130,8 +133,4 @@ public class ProductService implements IProductService {
         return productMapper.toDtoList(productRepository.findByBrandAndName(brand, name));
     }
 
-    @Override
-    public Long countProductsByBrandAndName(String brand, String name) {
-        return productRepository.countByBrandAndName(brand, name);
-    }
 }
