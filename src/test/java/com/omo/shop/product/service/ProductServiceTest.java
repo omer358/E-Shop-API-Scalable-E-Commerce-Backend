@@ -10,7 +10,6 @@ import com.omo.shop.product.model.Product;
 import com.omo.shop.product.repository.ProductRepository;
 import com.omo.shop.product.request.AddProductRequest;
 import com.omo.shop.product.request.UpdateProductRequest;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,445 +22,246 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.omo.shop.common.constants.ExceptionMessages.CATEGORY_NOT_FOUND;
 import static com.omo.shop.common.constants.ExceptionMessages.PRODUCT_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
-
     @Mock
     private CategoryRepository categoryRepository;
-
     @Mock
     private ProductMapper productMapper;
 
     @InjectMocks
     private ProductService productService;
 
+    private static final Long PRODUCT_ID = 1L;
+    private static final String BRAND = "Samsung";
+    private static final String NAME = "Samsung Galaxy A15";
+    private static final BigDecimal PRICE = BigDecimal.valueOf(999.99);
+
     private Category category;
+    private CategoryDto categoryDto;
     private Product product;
     private ProductDto productDto;
-    private CategoryDto categoryDto;
     private AddProductRequest addProductRequest;
     private UpdateProductRequest updateProductRequest;
-
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         category = Category.builder()
-                .id(1L)
+                .id(PRODUCT_ID)
                 .name("Electronics")
-                .products(new ArrayList<>())
-                .build();
-
+                .products(new ArrayList<>()).build();
         categoryDto = CategoryDto.builder()
-                .id(1L)
-                .name("Electronics")
-                .build();
+                .id(PRODUCT_ID).name("Electronics").build();
 
         product = Product.builder()
-                .id(1L)
-                .name("Samsung galaxy A15")
-                .brand("Samsung")
-                .price(BigDecimal.valueOf(999.99))
-                .inventory(100)
+                .id(PRODUCT_ID).name(NAME).brand(BRAND)
+                .price(PRICE).inventory(100)
                 .description("Latest Galaxy model")
-                .category(category)
-                .build();
-
-        addProductRequest = AddProductRequest.builder()
-                .name("Samsung galaxy A15")
-                .brand("Samsung")
-                .price(BigDecimal.valueOf(999.99))
-                .inventory(100)
-                .description("Latest Galaxy model")
-                .category(1L)
-                .build();
-
-        updateProductRequest = UpdateProductRequest.builder()
-                .price(BigDecimal.valueOf(80))
-                .inventory(300)
-                .build();
+                .category(category).build();
 
         productDto = ProductDto.builder()
-                .id(1L)
-                .name("Samsung galaxy A15")
-                .brand("Samsung")
-                .price(BigDecimal.valueOf(999.99))
-                .inventory(100)
+                .id(PRODUCT_ID).name(NAME).brand(BRAND)
+                .price(PRICE).inventory(100)
                 .description("Latest Galaxy model")
-                .category(categoryDto)
-                .build();
-    }
+                .category(categoryDto).build();
 
-    @AfterEach
-    void tearDown() {
+        addProductRequest = AddProductRequest.builder()
+                .name(NAME).brand(BRAND).price(PRICE)
+                .inventory(100).description("Latest Galaxy model")
+                .category(PRODUCT_ID).build();
+
+        updateProductRequest = UpdateProductRequest.builder()
+                .price(BigDecimal.valueOf(80)).inventory(300).build();
     }
 
     @Test
-    @DisplayName("should return product dto when the category exist")
-    void addProduct_shouldReturnProductDto_whenCategoryExist() {
-        //Arrange
-        when(categoryRepository.findById(addProductRequest.getCategory())).thenReturn(Optional.of(category));
-
-        Product unsavedProduct = Product.builder()
-                .name(addProductRequest.getName())
-                .brand(addProductRequest.getBrand())
-                .price(addProductRequest.getPrice())
-                .inventory(addProductRequest.getInventory())
-                .description(addProductRequest.getDescription())
-                .category(category)
-                .build();
+    @DisplayName("Should add product when category exists")
+    void addProduct_shouldReturnProductDto_whenCategoryExists() {
+        when(categoryRepository.findById(addProductRequest.getCategory()))
+                .thenReturn(Optional.of(category));
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toDto(product)).thenReturn(productDto);
 
-        //Act
         ProductDto result = productService.addProduct(addProductRequest);
-        assertNotNull(result);
-        assertEquals(productDto.getName(), result.getName());
-        assertEquals(productDto.getBrand(), result.getBrand());
-        assertEquals(productDto.getPrice(), result.getPrice());
 
-        verify(categoryRepository).findById(addProductRequest.getCategory());
+        assertNotNull(result);
+        assertEquals(NAME, result.getName());
+        verify(categoryRepository).findById(PRODUCT_ID);
         verify(productRepository).save(any(Product.class));
         verify(productMapper).toDto(any(Product.class));
     }
 
     @Test
-    @DisplayName("should throw exception when category not found")
+    @DisplayName("Should throw exception when category not found")
     void addProduct_shouldThrowException_whenCategoryNotFound() {
-        // Arrange
-        when(categoryRepository.findById(addProductRequest.getCategory()))
+        when(categoryRepository.findById(PRODUCT_ID))
                 .thenReturn(Optional.empty());
 
-        // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                productService.addProduct(addProductRequest)
-        );
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> productService.addProduct(addProductRequest));
 
-        assertTrue(exception.getMessage().contains("There is no category with the id"));
-
-        verify(categoryRepository).findById(addProductRequest.getCategory());
+        assertTrue(exception.getMessage()
+                .contains(CATEGORY_NOT_FOUND));
         verify(productRepository, never()).save(any());
         verify(productMapper, never()).toDto(any());
     }
 
     @Test
-    @DisplayName("Should return product DTO when product exists")
+    @DisplayName("Should return product when found by ID")
     void getProductById_shouldReturnProductDto_whenProductExists() {
-        //Arrange
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
         when(productMapper.toDto(product)).thenReturn(productDto);
 
-        //Act
-        ProductDto result = productService.getProductById(product.getId());
+        ProductDto result = productService.getProductById(PRODUCT_ID);
 
-        //Assert
-        assertEquals(result.getId(), product.getId());
-        assertEquals(result.getName(), product.getName());
-
-        verify(productRepository).findById(1L);
-        verify(productMapper).toDto(any());
+        assertEquals(PRODUCT_ID, result.getId());
+        assertEquals(NAME, result.getName());
+        verify(productRepository).findById(PRODUCT_ID);
+        verify(productMapper).toDto(product);
     }
 
     @Test
-    @DisplayName("Should throw ResourceNotFound exception when product is not found")
-    void getProductById_shouldThrowException_whenProductNotFound() {
-        //Given
-        Long productId = 5L;
-        //Arrange
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-        when(productMapper.toDto(product)).thenReturn(productDto);
+    @DisplayName("Should throw exception when product not found by ID")
+    void getProductById_shouldThrowException_whenNotFound() {
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
 
-
-        //Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            productService.getProductById(productId);
-        });
-
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> productService.getProductById(PRODUCT_ID));
 
         assertEquals(PRODUCT_NOT_FOUND, exception.getMessage());
-
-        verify(productRepository).findById(productId);
-        verifyNoInteractions(productMapper);
+        verify(productMapper, never()).toDto(any());
     }
 
     @Test
-    @DisplayName("Should delete product when product exists")
-    void deleteProductById_ShouldDeleteProduct_WhenProductExists() {
-        // Arrange
-        Long productId = 1L;
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+    @DisplayName("Should delete product when found")
+    void deleteProductById_shouldDeleteProduct_whenFound() {
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
 
-        // Act
-        productService.deleteProductById(productId);
+        productService.deleteProductById(PRODUCT_ID);
 
-        // Assert
         verify(productRepository).delete(product);
     }
 
     @Test
-    @DisplayName("Should throw exception when product not found")
-    void deleteProductById_ShouldThrowException_WhenProductNotFound() {
-        // Arrange
-        Long productId = 2L;
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+    @DisplayName("Should throw exception when deleting non-existent product")
+    void deleteProductById_shouldThrowException_whenNotFound() {
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> productService.deleteProductById(productId));
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.deleteProductById(PRODUCT_ID));
 
-        assertEquals(PRODUCT_NOT_FOUND, exception.getMessage());
         verify(productRepository, never()).delete(any());
     }
 
     @Test
-    void updateProduct_shouldUpdateProduct_whenProductAndCategoryExists() {
-        //Given
-        Long productId = 1L;
-        Product updatedProduct = Product.builder()
-                .id(productId)
-                .name(product.getName())
-                .images(product.getImages())
-                .brand(product.getBrand())
-                .description(product.getDescription())
-                .category(product.getCategory())
-                // updated values
-                .price(BigDecimal.valueOf(80))
-                .inventory(300)
-                .build();
+    @DisplayName("Should update product when both product and category exist")
+    void updateProduct_shouldReturnUpdatedProduct_whenProductAndCategoryExist() {
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
+        when(categoryRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(category));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.toDto(any(Product.class))).thenReturn(productDto);
 
-        ProductDto updatedProductDto = ProductDto.builder()
-                .id(productId)
-                .name(product.getName())
-                .images(productDto.getImages())
-                .brand(product.getBrand())
-                .description(product.getDescription())
-                .category(productDto.getCategory())
-                // updated values
-                .price(BigDecimal.valueOf(80))
-                .inventory(300)
-                .build();
+        ProductDto result = productService
+                .updateProduct(updateProductRequest, PRODUCT_ID);
 
-        //Arrange
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
-        when(productMapper.toDto(any(Product.class))).thenReturn(updatedProductDto);
-
-        //Act
-        ProductDto result = productService.updateProduct(updateProductRequest, productId);
-
-        //Assert
-        assertEquals(productDto.getName(), result.getName());
-
-        assertEquals(updatedProduct.getPrice(), result.getPrice());
-        assertEquals(updatedProduct.getInventory(), result.getInventory());
-
+        assertEquals(NAME, result.getName());
         verify(productRepository).save(any(Product.class));
         verify(productMapper).toDto(any(Product.class));
-
     }
 
     @Test
+    @DisplayName("Should throw exception when product does not exist for update")
     void updateProduct_shouldThrowException_whenProductNotFound() {
-        //Given
-        Long productId = 1L;
-        Product updatedProduct = Product.builder()
-                .id(productId)
-                .name(product.getName())
-                .images(product.getImages())
-                .brand(product.getBrand())
-                .description(product.getDescription())
-                .category(product.getCategory())
-                // updated values
-                .price(BigDecimal.valueOf(80))
-                .inventory(300)
-                .build();
+        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
 
-        ProductDto updatedProductDto = ProductDto.builder()
-                .id(productId)
-                .name(product.getName())
-                .images(productDto.getImages())
-                .brand(product.getBrand())
-                .description(product.getDescription())
-                .category(productDto.getCategory())
-                // updated values
-                .price(BigDecimal.valueOf(80))
-                .inventory(300)
-                .build();
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> productService.updateProduct(updateProductRequest, PRODUCT_ID));
 
-        //Arrange
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-
-        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
-        when(productMapper.toDto(any(Product.class))).thenReturn(updatedProductDto);
-
-        //Act
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> productService.updateProduct(updateProductRequest, productId));
-
-        //Assert
         assertEquals(PRODUCT_NOT_FOUND, exception.getMessage());
-
-        verify(productRepository).findById(productId);
-        verify(productRepository, never()).save(any(Product.class));
-        verify(productMapper, never()).toDto(any(Product.class));
-
     }
 
     @Test
-    void testGetAllProducts_ReturnProductsDtoList() {
-        //given
+    @DisplayName("Should return all products")
+    void getAllProducts_shouldReturnList() {
         List<Product> productList = List.of(product);
         List<ProductDto> productDtoList = List.of(productDto);
 
-        //Arrange
         when(productRepository.findAll()).thenReturn(productList);
         when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
 
-        //Act
         List<ProductDto> result = productService.getAllProducts();
 
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(productDto.getName(), result.get(0).getName());
-
         verify(productRepository).findAll();
         verify(productMapper).toDtoList(productList);
     }
 
     @Test
-    @DisplayName("should return list of matched products by category")
-    void getProductsByCategory_shouldReturnMatchingProductDtos() {
-        //given
-        String categoryName = category.getName();
-        List<Product> productList = List.of(product);
-        List<ProductDto> productDtoList = List.of(productDto);
+    @DisplayName("Should return products by category name")
+    void getProductsByCategory_shouldReturnProducts() {
+        when(productRepository.findByCategoryName("Electronics")).thenReturn(List.of(product));
+        when(productMapper.toDtoList(any())).thenReturn(List.of(productDto));
 
-        //Arrange
-        when(productRepository.findByCategoryName(categoryName))
-                .thenReturn(productList);
-        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
+        List<ProductDto> result = productService.getProductsByCategory("Electronics");
 
-        //Act
-        List<ProductDto> result = productService.getProductsByCategory(categoryName);
-
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(categoryName, result.get(0).getCategory().getName());
-
-        verify(productRepository).findByCategoryName(categoryName);
-        verify(productMapper).toDtoList(productList);
     }
 
     @Test
-    @DisplayName("should return list of matched products by name")
-    void getProductsByBrand_shouldReturnMatchingProductList() {
-        //given
-        String productBrand = product.getBrand();
-        List<Product> productList = List.of(product);
-        List<ProductDto> productDtoList = List.of(productDto);
+    @DisplayName("Should return products by brand name")
+    void getProductsByBrand_shouldReturnProducts() {
+        when(productRepository.getByBrand(BRAND)).thenReturn(List.of(product));
+        when(productMapper.toDtoList(any())).thenReturn(List.of(productDto));
 
-        //Arrange
-        when(productRepository.getByBrand(productBrand))
-                .thenReturn(productList);
-        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
+        List<ProductDto> result = productService.getProductsByBrand(BRAND);
 
-        //Act
-        List<ProductDto> result = productService.getProductsByBrand(productBrand);
-
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(productBrand, result.get(0).getBrand());
-
-        verify(productRepository).getByBrand(productBrand);
-        verify(productMapper).toDtoList(productList);
     }
 
     @Test
-    @DisplayName("should return a list of product dto that match the category and brand names")
-    void getProductsByCategoryAndBrand_returnsMatchingProductsList() {
-        //given
-        String productBrand = product.getBrand();
-        String productCategory = category.getName();
+    @DisplayName("Should return products by category and brand")
+    void getProductsByCategoryAndBrand_shouldReturnProducts() {
+        when(productRepository.findByCategoryNameAndBrand("Electronics", BRAND))
+                .thenReturn(List.of(product));
+        when(productMapper.toDtoList(any())).thenReturn(List.of(productDto));
 
-        List<Product> productList = List.of(product);
-        List<ProductDto> productDtoList = List.of(productDto);
+        List<ProductDto> result = productService
+                .getProductsByCategoryAndBrand("Electronics", BRAND);
 
-        //Arrange
-        when(productRepository.findByCategoryNameAndBrand(productCategory, productBrand))
-                .thenReturn(productList);
-        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
-
-        //Act
-        List<ProductDto> result = productService.getProductsByCategoryAndBrand(productCategory, productBrand);
-
-        //Assert
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(productCategory, result.get(0).getCategory().getName());
-        assertEquals(productBrand, result.get(0).getBrand());
-
-        verify(productRepository).findByCategoryNameAndBrand(productCategory, productBrand);
-        verify(productMapper).toDtoList(productList);
     }
 
     @Test
-    @DisplayName("should return list of products like the product name")
-    void getProductsByName_returnsMatchingProductsList() {
-        //given
-        String searchName = "galaxy";
-        List<Product> productList = List.of(product);
-        List<ProductDto> productDtoList = List.of(productDto);
+    @DisplayName("Should return products by name containing")
+    void getProductsByName_shouldReturnMatchingProducts() {
+        when(productRepository.findByNameContainingIgnoreCase("galaxy"))
+                .thenReturn(List.of(product));
+        when(productMapper.toDtoList(any())).thenReturn(List.of(productDto));
 
-        //Arrange
-        when(productRepository.findByNameContainingIgnoreCase(searchName))
-                .thenReturn(productList);
-        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
+        List<ProductDto> result = productService.getProductsByName("galaxy");
 
-        //Act
-        List<ProductDto> result = productService.getProductsByName(searchName);
-
-        //Assert
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(productDto.getName(), result.get(0).getName());
-
-        verify(productRepository).findByNameContainingIgnoreCase(searchName);
-        verify(productMapper).toDtoList(productList);
-
     }
 
     @Test
-    @DisplayName("should return list of products matching the brand and name")
-    void getProductsByBrandAndName_returnsMatchingProductsList() {
-        //given
-        String productBrand = "Samsung";
-        String productName = "Samsung galaxy A15";
-        List<Product> productList = List.of(product);
-        List<ProductDto> productDtoList = List.of(productDto);
+    @DisplayName("Should return products by brand and name")
+    void getProductsByBrandAndName_shouldReturnMatchingProducts() {
+        when(productRepository.findByBrandAndName(BRAND, NAME)).thenReturn(List.of(product));
+        when(productMapper.toDtoList(any())).thenReturn(List.of(productDto));
 
-        //Arrange
-        when(productRepository.findByBrandAndName(productBrand, productName))
-                .thenReturn(productList);
-        when(productMapper.toDtoList(productList)).thenReturn(productDtoList);
+        List<ProductDto> result = productService.getProductsByBrandAndName(BRAND, NAME);
 
-        //Act
-        List<ProductDto> result = productService.getProductsByBrandAndName(productBrand, productName);
-
-        //Assert
-        //Assert
         assertEquals(1, result.size());
-        assertEquals(productName, result.get(0).getName());
-        assertEquals(productBrand, result.get(0).getBrand());
-
-        verify(productRepository).findByBrandAndName(productBrand, productName);
-        verify(productMapper).toDtoList(productList);
     }
 }

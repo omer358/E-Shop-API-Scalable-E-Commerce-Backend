@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.omo.shop.common.constants.ExceptionMessages.CATEGORY_NOT_FOUND;
 import static com.omo.shop.common.constants.ExceptionMessages.PRODUCT_NOT_FOUND;
 
 @Service
@@ -28,9 +29,7 @@ public class ProductService implements IProductService {
     public ProductDto addProduct(AddProductRequest request) {
         Category category = categoryRepository.findById(request.getCategory())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "There is no category with the id"
-                                        + request.getCategory()));
+                        new ResourceNotFoundException(CATEGORY_NOT_FOUND));
         return productMapper.toDto(productRepository.save(createProduct(request, category)));
     }
 
