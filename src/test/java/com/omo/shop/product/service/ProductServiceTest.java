@@ -220,9 +220,8 @@ class ProductServiceTest {
         verify(productRepository, never()).delete(any());
     }
 
-
     @Test
-    void updateProduct() {
+    void updateProduct_shouldUpdateProduct_whenProductAndCategoryExists() {
         //Given
         Long productId = 1L;
         Product updatedProduct = Product.builder()
@@ -258,13 +257,61 @@ class ProductServiceTest {
         ProductDto result = productService.updateProduct(updateProductRequest, productId);
 
         //Assert
-        assertEquals(productDto.getName(),result.getName());
+        assertEquals(productDto.getName(), result.getName());
 
-        assertEquals(updatedProduct.getPrice(),result.getPrice());
-        assertEquals(updatedProduct.getInventory(),result.getInventory());
+        assertEquals(updatedProduct.getPrice(), result.getPrice());
+        assertEquals(updatedProduct.getInventory(), result.getInventory());
 
         verify(productRepository).save(any(Product.class));
         verify(productMapper).toDto(any(Product.class));
+
+    }
+
+    @Test
+    void updateProduct_shouldThrowException_whenProductNotFound() {
+        //Given
+        Long productId = 1L;
+        Product updatedProduct = Product.builder()
+                .id(productId)
+                .name(product.getName())
+                .images(product.getImages())
+                .brand(product.getBrand())
+                .description(product.getDescription())
+                .category(product.getCategory())
+                // updated values
+                .price(BigDecimal.valueOf(80))
+                .inventory(300)
+                .build();
+
+        ProductDto updatedProductDto = ProductDto.builder()
+                .id(productId)
+                .name(product.getName())
+                .images(productDto.getImages())
+                .brand(product.getBrand())
+                .description(product.getDescription())
+                .category(productDto.getCategory())
+                // updated values
+                .price(BigDecimal.valueOf(80))
+                .inventory(300)
+                .build();
+
+        //Arrange
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
+        when(productMapper.toDto(any(Product.class))).thenReturn(updatedProductDto);
+
+        //Act
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> productService.updateProduct(updateProductRequest, productId));
+
+        //Assert
+        assertEquals(PRODUCT_NOT_FOUND, exception.getMessage());
+
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).save(any(Product.class));
+        verify(productMapper, never()).toDto(any(Product.class));
 
     }
 
