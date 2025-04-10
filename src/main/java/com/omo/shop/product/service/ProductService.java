@@ -65,12 +65,11 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto updateProduct(UpdateProductRequest request, Long productId) {
-        //TODO: HANDLE THE NULL VALUE BY NOT LETTING THEM CHANGE THE ORIGINAL VALUES
-        Product updatedProduct = productRepository.findById(productId)
-                .map(existingProduct -> updateExistingProduct(existingProduct, request))
-                .map(productRepository::save)
+        Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
-        return productMapper.toDto(updatedProduct);
+        Product updatedProduct = updateExistingProduct(existingProduct, request);
+        Product savedProduct = productRepository.save(updatedProduct);
+        return productMapper.toDto(savedProduct);
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
