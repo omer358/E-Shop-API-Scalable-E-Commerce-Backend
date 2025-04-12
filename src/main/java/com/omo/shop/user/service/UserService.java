@@ -11,12 +11,12 @@ import com.omo.shop.user.request.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.omo.shop.common.constants.ExceptionMessages.EMAIL_TAKE;
 import static com.omo.shop.common.constants.ExceptionMessages.USER_NOT_FOUND;
 
 @Service
@@ -55,9 +55,7 @@ public class UserService implements IUserService {
                             .build();
                     return userMapper.toDto(userRepository.save(user));
                 }).orElseThrow(() ->
-                        new AlreadyExistsException(
-                                "User with" + userRequest.getEmail() + "already exists!"
-                        ));
+                        new AlreadyExistsException(EMAIL_TAKE));
     }
 
     @Override
@@ -86,6 +84,6 @@ public class UserService implements IUserService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
     }
 }
