@@ -25,7 +25,7 @@ public class Order {
     )
     private Long orderId;
     private LocalDateTime orderDataTime;
-    private BigDecimal TotalPrice;
+    private BigDecimal totalPrice;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus orderStatus;
