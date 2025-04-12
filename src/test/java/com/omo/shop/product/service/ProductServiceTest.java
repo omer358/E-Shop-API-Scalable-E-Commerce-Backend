@@ -158,9 +158,11 @@ class ProductServiceTest {
     void deleteProductById_shouldThrowException_whenNotFound() {
         when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        Exception exception = assertThrows(ResourceNotFoundException.class,
                 () -> productService.deleteProductById(PRODUCT_ID));
 
+        assertEquals(PRODUCT_NOT_FOUND, exception.getMessage());
+        verify(productRepository).findById(PRODUCT_ID);
         verify(productRepository, never()).delete(any());
     }
 
