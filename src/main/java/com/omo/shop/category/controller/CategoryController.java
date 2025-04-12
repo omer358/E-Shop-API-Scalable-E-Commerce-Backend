@@ -36,6 +36,25 @@ public class CategoryController {
         }
     }
 
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<ApiResponse> addCategory(
+            @PathVariable Long categoryId,
+            @RequestBody String updatedCategoryName) {
+        try {
+            CategoryDto updatedCategory = categoryService.updateCategory(
+                    updatedCategoryName, categoryId);
+            return ResponseEntity
+                    .ok(new ApiResponse("updated successfully", updatedCategory));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(CONFLICT)
+                    .body(new ApiResponse(e.getMessage(), updatedCategoryName));
+        }
+        catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id) {
         try {
