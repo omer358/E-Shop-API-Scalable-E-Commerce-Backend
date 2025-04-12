@@ -57,11 +57,13 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDto updateCategory(String newCategoryName, Long id) {
         // Check if the category exists by ID
+        //category(1,"oldName")
+        //"new name"
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
 
         // If the name already exists (and it's not the current category), block the update
-        if (categoryRepository.existsByName(newCategoryName) && category.getName().equals(newCategoryName)) {
+        if (categoryRepository.existsByName(newCategoryName)) {
             throw new AlreadyExistsException(CATEGORY_EXISTED);
         }
 

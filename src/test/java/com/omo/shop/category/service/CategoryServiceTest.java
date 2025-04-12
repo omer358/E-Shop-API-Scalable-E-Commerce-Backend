@@ -129,7 +129,7 @@ class CategoryServiceTest {
         //Act
         List<CategoryDto> result = categoryService.getAllCategories();
 
-        assertEquals(CATEGORY_ID, result.size());
+        assertEquals(1, result.size());
         verify(categoryRepository).findAll();
         verify(categoryMapper).toDtoList(categoryList);
     }
@@ -197,31 +197,44 @@ class CategoryServiceTest {
     @Test
     @DisplayName("Should update category when category exist")
     void updateCategory_shouldReturnUpdatedCategory_whenCategoryExist() {
-        Category category1 = Category.builder().id(1L).name("Men").build();
-        CategoryDto categoryDto1 = CategoryDto.builder().id(1L).name("Men").build();
+        final String updatedName = "Men";
+        final Category updatedCategory = Category.builder().id(1L).name("Men").build();
+        final CategoryDto updatedCategoryDto = CategoryDto.builder().id(1L).name("Men").build();
 
         when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(category));
         when(categoryRepository.existsByName(any(String.class))).thenReturn(false);
-        when(categoryRepository.save(any(Category.class))).thenReturn(category1);
-        when(categoryMapper.toDto(any(Category.class))).thenReturn(categoryDto1);
+        when(categoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
+        when(categoryMapper.toDto(any(Category.class))).thenReturn(updatedCategoryDto);
 
         CategoryDto result = categoryService
-                .updateCategory(category1.getName(), CATEGORY_ID);
+                .updateCategory(updatedName, CATEGORY_ID);
 
-        assertEquals(categoryDto1.getName(), result.getName());
+        assertEquals(updatedName, result.getName());
         verify(categoryRepository).save(any(Category.class));
-        verify(categoryRepository).existsByName(category1.getName());
+        verify(categoryRepository).existsByName(updatedName);
         verify(categoryMapper).toDto(any(Category.class));
     }
 
     @Test
     @DisplayName("Should throw exception when category does not exist for update")
-    void updateCategory_shouldThrowException_whenCategoryNotFound() {
+    void updateCategory_shouldThrowResourceNotFoundException_whenCategoryNotFound() {
         when(categoryRepository.existsByName(CATEGORY_NAME)).thenReturn(true);
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> categoryService.updateCategory("Men", CATEGORY_ID));
 
         assertEquals(CATEGORY_NOT_FOUND, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating category with a name that already exists")
+    void updateCategory_shouldThrowAlreadyExistsException_whenNameAlreadyExists() {
+        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(category));
+        when(categoryRepository.existsByName("Duplicate")).thenReturn(true);
+
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
+                () -> categoryService.updateCategory("Duplicate", CATEGORY_ID));
+
+        assertEquals(CATEGORY_EXISTED, exception.getMessage());
     }
 }
