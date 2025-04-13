@@ -13,6 +13,7 @@ import com.omo.shop.product.mapper.ProductMapper;
 import com.omo.shop.product.model.Product;
 import com.omo.shop.product.service.IProductService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -87,6 +88,7 @@ class CartItemServiceTest {
     }
 
     @Test
+    @DisplayName("should add a new item to the cart when it does not already exist")
     void addItemToCart_shouldAddNewItem() {
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(productService.getProductById(1L)).thenReturn(mock(ProductDto.class));
@@ -99,6 +101,7 @@ class CartItemServiceTest {
     }
 
     @Test
+    @DisplayName("should remove an existing item from the cart successfully")
     void removeItemFromCart_shouldRemoveItemSuccessfully() {
         // Arrange
         cart.setItems(new HashSet<>());
@@ -130,8 +133,8 @@ class CartItemServiceTest {
         verify(cartRepository).save(cart);
     }
 
-
     @Test
+    @DisplayName("should update the quantity of an item in the cart and recalculate total amount")
     void updateItemQuantity_shouldUpdateAndRecalculateTotal() {
         cart.getItems().add(cartItem);
         CartItem updatedItem = cart.getItems().iterator().next();
