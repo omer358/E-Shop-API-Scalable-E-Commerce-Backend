@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)  // 🔥 Avoid infinite recursion
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartItemDto {
     @EqualsAndHashCode.Include
     private Long id;

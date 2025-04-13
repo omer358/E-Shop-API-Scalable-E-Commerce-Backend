@@ -11,6 +11,7 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)  // 🔥 Avoid infinite recursion
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartDto {
     private Long id;
     private BigDecimal totalAmount = BigDecimal.ZERO;
