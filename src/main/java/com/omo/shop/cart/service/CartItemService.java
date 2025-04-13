@@ -8,7 +8,8 @@ import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.repository.CartItemRepository;
 import com.omo.shop.cart.repository.CartRepository;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.product.mapper.ProductMapper;
 import com.omo.shop.product.model.Product;
 import com.omo.shop.product.service.IProductService;
@@ -16,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.omo.shop.common.constants.ExceptionMessages.CART_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +33,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void addItemToCart(Long cartId, Long productId, Integer quantity) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException(CART_NOT_FOUND));
         Product product = productMapper.toEntity(productService.getProductById(productId));
         CartItem cartItem = cart.getItems()
                 .stream()
@@ -54,7 +57,8 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow(()-> new ResourceNotFoundException("Cart not found"));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() ->
+                new ResourceNotFoundException(CART_NOT_FOUND));
         CartItem cartItem = cartItemMapper.toEntity(getCartItem(cartId, productId));
         cart.removeItem(cartItem);
         cartRepository.save(cart);
@@ -63,7 +67,7 @@ public class CartItemService implements ICartItemService {
     @Override
     public void updateItemQuantity(Long cartId, Long productId, Integer quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(CART_NOT_FOUND));
         cart.getItems()
                 .stream()
                 .filter(cartItem -> cartItem
@@ -90,6 +94,6 @@ public class CartItemService implements ICartItemService {
                 .filter(cartItem1 ->
                         cartItem1.getProduct().getId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.CART_ITEM_NOT_FOUND));
     }
 }

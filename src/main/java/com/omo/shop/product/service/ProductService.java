@@ -2,7 +2,8 @@ package com.omo.shop.product.service;
 
 import com.omo.shop.category.model.Category;
 import com.omo.shop.category.repository.CategoryRepository;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.constants.ExceptionMessages;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.product.dto.ProductDto;
 import com.omo.shop.product.mapper.ProductMapper;
 import com.omo.shop.product.model.Product;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
+import static com.omo.shop.common.constants.ExceptionMessages.CATEGORY_NOT_FOUND;
+import static com.omo.shop.common.constants.ExceptionMessages.PRODUCT_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +27,9 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDto addProduct(AddProductRequest request) {
-        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
-                .orElseGet(() -> {
-                    Category newCategory = new Category(request.getCategory().getName());
-                    return categoryRepository.save(newCategory);
-                });
-        request.setCategory(category);
+        Category category = categoryRepository.findById(request.getCategory())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CATEGORY_NOT_FOUND));
         return productMapper.toDto(productRepository.save(createProduct(request, category)));
     }
 
@@ -47,7 +47,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Product not found!")
+                () -> new ResourceNotFoundException(PRODUCT_NOT_FOUND)
         );
         return productMapper.toDto(product);
     }
@@ -57,28 +57,47 @@ public class ProductService implements IProductService {
         productRepository.findById(id).ifPresentOrElse(
                 productRepository::delete,
                 () -> {
-                    throw new ResourceNotFoundException("Product not found");
+                    throw new ResourceNotFoundException(PRODUCT_NOT_FOUND);
                 }
         );
     }
 
     @Override
-    public Product updateProduct(UpdateProductRequest request, Long productId) {
-        return productRepository.findById(productId)
-                .map(existingProduct -> updateExistingProduct(existingProduct, request))
-                .map(productRepository::save)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+    public ProductDto updateProduct(UpdateProductRequest request, Long productId) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_NOT_FOUND));
+        Product updatedProduct = updateExistingProduct(existingProduct, request);
+        Product savedProduct = productRepository.save(updatedProduct);
+        return productMapper.toDto(savedProduct);
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
-        existingProduct.setName(request.getName());
-        existingProduct.setBrand(request.getBrand());
-        existingProduct.setPrice(request.getPrice());
-        existingProduct.setDescription(request.getDescription());
-        existingProduct.setInventory(request.getInventory());
+        if (request.getName() != null) {
+            existingProduct.setName(request.getName());
+        }
 
-        Category category = categoryRepository.findByName(request.getCategory().getName());
-        existingProduct.setCategory(category);
+        if (request.getBrand() != null) {
+            existingProduct.setBrand(request.getBrand());
+        }
+
+        if (request.getPrice() != null) {
+            existingProduct.setPrice(request.getPrice());
+        }
+
+        if (request.getDescription() != null) {
+            existingProduct.setDescription(request.getDescription());
+        }
+
+        if (request.getInventory() != null) {
+            existingProduct.setInventory(request.getInventory());
+        }
+
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findById(request.getCategory())
+                    .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.CATEGORY_NOT_FOUND));
+            existingProduct.setCategory(category);
+        }
+
         return existingProduct;
     }
 
@@ -112,8 +131,4 @@ public class ProductService implements IProductService {
         return productMapper.toDtoList(productRepository.findByBrandAndName(brand, name));
     }
 
-    @Override
-    public Long countProductsByBrandAndName(String brand, String name) {
-        return productRepository.countByBrandAndName(brand, name);
-    }
 }

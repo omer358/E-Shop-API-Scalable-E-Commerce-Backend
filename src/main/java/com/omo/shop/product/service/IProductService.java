@@ -1,7 +1,6 @@
 package com.omo.shop.product.service;
 
 import com.omo.shop.product.dto.ProductDto;
-import com.omo.shop.product.model.Product;
 import com.omo.shop.product.request.AddProductRequest;
 import com.omo.shop.product.request.UpdateProductRequest;
 
@@ -14,7 +13,7 @@ public interface IProductService {
 
     void deleteProductById(Long id);
 
-    Product updateProduct(UpdateProductRequest product, Long productId);
+    ProductDto updateProduct(UpdateProductRequest product, Long productId);
 
     List<ProductDto> getAllProducts();
 
@@ -28,6 +27,6 @@ public interface IProductService {
 
     List<ProductDto> getProductsByBrandAndName(String brand, String name);
 
-    Long countProductsByBrandAndName(String brand, String name);
+
 
 }

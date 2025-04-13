@@ -1,55 +1,85 @@
 package com.omo.shop.category.service;
 
+import com.omo.shop.category.dto.CategoryDto;
+import com.omo.shop.category.mapper.CategoryMapper;
 import com.omo.shop.category.model.Category;
 import com.omo.shop.category.repository.CategoryRepository;
-import com.omo.shop.exceptions.AlreadyExistsException;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.exceptions.AlreadyExistsException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
+import static com.omo.shop.common.constants.ExceptionMessages.CATEGORY_EXISTED;
+import static com.omo.shop.common.constants.ExceptionMessages.CATEGORY_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
-    public Category getCategoryById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found!"));
+    public CategoryDto getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
+        return categoryMapper.toDto(category);
     }
 
     @Override
-    public Category getCategoryByName(String name) {
-        return categoryRepository.findByName(name);
+    public CategoryDto getCategoryByName(String name) {
+        Category category = categoryRepository.findByName(name)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(CATEGORY_NOT_FOUND));
+        return categoryMapper.toDto(category);
     }
 
     @Override
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDto> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        return categoryMapper.toDtoList(categories);
     }
 
     @Override
-    public Category addCategory(Category category) {
-        return Optional.of(category).filter(c->!categoryRepository.existsByName(c.getName()))
-                .map(categoryRepository::save).orElseThrow(()-> new AlreadyExistsException(category.getName()+" already exists "));
+    public CategoryDto addCategory(String categoryName) {
+        if (categoryRepository.existsByName(categoryName)) {
+            throw new AlreadyExistsException(categoryName + CATEGORY_EXISTED);
+        }else{
+            Category category = Category.builder()
+                    .name(categoryName)
+                    .build();
+            Category savedCategory = categoryRepository.save(category);
+            return categoryMapper.toDto(savedCategory);
+        }
     }
 
     @Override
-    public Category updateCategory(Category category, Long id) {
-        return Optional.ofNullable(getCategoryById(id)).map(oldCategory-> {
-            oldCategory.setName(category.getName());
-            return categoryRepository.save(oldCategory);
-        }).orElseThrow(()-> new ResourceNotFoundException("Category not found"));
+    public CategoryDto updateCategory(String newCategoryName, Long id) {
+        // Check if the category exists by ID
+        //category(1,"oldName")
+        //"new name"
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND));
+
+        // If the name already exists (and it's not the current category), block the update
+        if (categoryRepository.existsByName(newCategoryName)) {
+            throw new AlreadyExistsException(CATEGORY_EXISTED);
+        }
+
+        // Update the name and save
+        category.setName(newCategoryName);
+        Category savedCategory = categoryRepository.save(category);
+
+        // Map to DTO and return
+        return categoryMapper.toDto(savedCategory);
     }
 
     @Override
     public void deleteCategory(Long id) {
         categoryRepository.findById(id)
                 .ifPresentOrElse(categoryRepository::delete, () -> {
-                    throw new ResourceNotFoundException("Category not found");
+                    throw new ResourceNotFoundException(CATEGORY_NOT_FOUND);
                 });
     }
 }

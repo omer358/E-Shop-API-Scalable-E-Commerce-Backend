@@ -1,7 +1,7 @@
 package com.omo.shop.user.service;
 
-import com.omo.shop.exceptions.AlreadyExistsException;
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.exceptions.AlreadyExistsException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.user.UserMapper;
 import com.omo.shop.user.dto.UserDto;
 import com.omo.shop.user.model.User;
@@ -11,11 +11,13 @@ import com.omo.shop.user.request.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static com.omo.shop.common.constants.ExceptionMessages.EMAIL_TAKE;
+import static com.omo.shop.common.constants.ExceptionMessages.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class UserService implements IUserService {
     public UserDto getUserDtoById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                        new ResourceNotFoundException(USER_NOT_FOUND));
         return userMapper.toDto(user);
     }
 
@@ -36,7 +38,7 @@ public class UserService implements IUserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                        new ResourceNotFoundException(USER_NOT_FOUND));
     }
 
     @Override
@@ -53,9 +55,7 @@ public class UserService implements IUserService {
                             .build();
                     return userMapper.toDto(userRepository.save(user));
                 }).orElseThrow(() ->
-                        new AlreadyExistsException(
-                                "User with" + userRequest.getEmail() + "already exists!"
-                        ));
+                        new AlreadyExistsException(EMAIL_TAKE));
     }
 
     @Override
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
                     existingUser.setLastName((userRequest.getLastName()));
                     return userRepository.save(existingUser);
                 }).orElseThrow(
-                        () -> new ResourceNotFoundException("User not found")
+                        () -> new ResourceNotFoundException(USER_NOT_FOUND)
                 );
         return userMapper.toDto(user);
     }
@@ -84,6 +84,6 @@ public class UserService implements IUserService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
     }
 }

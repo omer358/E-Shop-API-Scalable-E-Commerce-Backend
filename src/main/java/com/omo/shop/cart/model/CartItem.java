@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 public class CartItem {
     @Id

@@ -3,10 +3,7 @@ package com.omo.shop.cart.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.omo.shop.user.model.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -16,6 +13,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 public class Cart {
     @Id

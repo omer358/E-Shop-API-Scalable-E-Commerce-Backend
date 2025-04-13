@@ -1,8 +1,8 @@
 package com.omo.shop.user.controller;
 
+import com.omo.shop.common.exceptions.AlreadyExistsException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.exceptions.AlreadyExistsException;
-import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.user.dto.UserDto;
 import com.omo.shop.user.request.UserCreationRequest;
 import com.omo.shop.user.request.UserUpdateRequest;

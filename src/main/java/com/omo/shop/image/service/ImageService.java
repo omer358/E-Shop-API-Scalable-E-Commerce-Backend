@@ -1,6 +1,6 @@
 package com.omo.shop.image.service;
 
-import com.omo.shop.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.image.dto.ImageDto;
 import com.omo.shop.image.mapper.ImageMapper;
 import com.omo.shop.image.model.Image;
@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static com.omo.shop.common.constants.ExceptionMessages.IMAGE_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class ImageService implements IImageService {
@@ -31,7 +33,7 @@ public class ImageService implements IImageService {
     public ImageDto getImageById(Long id) {
         Image image = imageRepository.findById(id)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("No image found with id: " + id)
+                        () -> new ResourceNotFoundException(IMAGE_NOT_FOUND)
                 );
         return imageMapper.toDto(image);
     }
@@ -39,7 +41,7 @@ public class ImageService implements IImageService {
     @Override
     public Image getImageEntityById(Long id) {
         return imageRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("No image found with id: " + id)
+                () -> new ResourceNotFoundException(IMAGE_NOT_FOUND)
         );
     }
 

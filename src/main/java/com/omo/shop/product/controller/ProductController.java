@@ -1,9 +1,8 @@
 package com.omo.shop.product.controller;
 
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.exceptions.ResourceNotFoundException;
 import com.omo.shop.product.dto.ProductDto;
-import com.omo.shop.product.model.Product;
 import com.omo.shop.product.request.AddProductRequest;
 import com.omo.shop.product.request.UpdateProductRequest;
 import com.omo.shop.product.service.IProductService;
@@ -57,9 +56,9 @@ public class  ProductController {
             @RequestBody UpdateProductRequest updatedProduct
     ) {
         try {
-            Product product = productService.updateProduct(updatedProduct, id);
+            ProductDto productDto = productService.updateProduct(updatedProduct, id);
             return ResponseEntity.ok(
-                    new ApiResponse("product updated successfully", product)
+                    new ApiResponse("product updated successfully", productDto)
             );
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
