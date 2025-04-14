@@ -29,6 +29,18 @@ public class SecurityConfiguration {
                 csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs.yaml",
+                                        "/v3/api-docs.json",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/configuration/ui",
+                                        "/configuration/security"
+                                ).permitAll()
+
                                 .requestMatchers(apiPrefix + "/auth/**").permitAll()
                                 .requestMatchers(apiPrefix + "/users/create-user").permitAll()
                                 // 🔒 SECURE WRITE OPERATIONS FOR PRODUCTS
