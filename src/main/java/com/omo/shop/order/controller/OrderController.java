@@ -24,10 +24,10 @@ public class OrderController {
     private final UserService userService;
 
     @PostMapping("/place-order")
-    public ResponseEntity<ApiResponse> createOrder() {
+    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long addressId) {
         try {
             User user = userService.getAuthenticatedUser();
-            OrderDto orderDto = orderService.placeOrder(user.getId());
+            OrderDto orderDto = orderService.placeOrder(user.getId(), addressId);
             return ResponseEntity.ok(new ApiResponse("Success", orderDto));
         } catch (InsufficientStockException e) {
             return ResponseEntity.status(CONFLICT)

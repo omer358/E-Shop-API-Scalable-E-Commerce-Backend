@@ -1,5 +1,8 @@
 package com.omo.shop.order.service;
 
+import com.omo.shop.address.dto.AddressDto;
+import com.omo.shop.address.model.Address;
+import com.omo.shop.address.repository.AddressRepository;
 import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.service.ICartService;
@@ -13,6 +16,8 @@ import com.omo.shop.order.model.OrderItem;
 import com.omo.shop.order.repository.OrderRepository;
 import com.omo.shop.product.model.Product;
 import com.omo.shop.product.repository.ProductRepository;
+import com.omo.shop.user.dto.UserDto;
+import com.omo.shop.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,17 +36,29 @@ import static org.mockito.Mockito.*;
 
 class OrderServiceTest {
 
-    @Mock private OrderRepository orderRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private ICartService cartService;
-    @Mock private OrderMapper orderMapper;
-    @InjectMocks private OrderService orderService;
+    @Mock
+    private OrderRepository orderRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private AddressRepository addressRepository;
+    @Mock
+    private ICartService cartService;
+    @Mock
+    private OrderMapper orderMapper;
+    @InjectMocks
+    private OrderService orderService;
 
     private Product product;
     private CartItem cartItem;
+    private User user;
+    private UserDto userDto;
     private Cart cart;
     private Order order;
     private OrderDto orderDto;
+    private Address address;
+    private Address address2;
+    private AddressDto addressDto;
 
     @BeforeEach
     void setUp() {
@@ -86,15 +103,60 @@ class OrderServiceTest {
                 .orderStatus(OrderStatus.PENDING.toString())
                 .totalPrice(BigDecimal.valueOf(3000))
                 .build();
+
+        user = User.builder()
+                .id(1L)
+                .firstName("Omar")
+                .lastName("Dev")
+                .email("omar@example.com")
+                .password("encoded-pass")
+                .build();
+
+        userDto = UserDto.builder()
+                .id(1L)
+                .firstName("Omar")
+                .lastName("Dev")
+                .email("omar@example.com")
+                .build();
+
+        address = Address.builder()
+                .id(1L)
+                .street("Main St")
+                .city("Metropolis")
+                .state("Gotham")
+                .country("USA")
+                .zipCode("12345")
+                .user(user)
+                .build();
+
+        address2 = Address.builder()
+                .id(2L)
+                .street("Main St")
+                .city("Metropolis")
+                .state("Gotham")
+                .country("USA")
+                .zipCode("12345")
+                .user(User.builder().id(2L).build())
+                .build();
+
+        addressDto = AddressDto.builder()
+                .id(1L)
+                .street("Main St")
+                .city("Metropolis")
+                .state("Gotham")
+                .country("USA")
+                .zipCode("12345")
+                .build();
     }
 
     @Test
     void placeOrder_shouldCreateOrder_whenStockIsAvailable() {
         when(cartService.getCartByUserId(1L)).thenReturn(cart);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
         when(orderMapper.toDto(any(Order.class))).thenReturn(orderDto);
 
-        OrderDto result = orderService.placeOrder(1L);
+        OrderDto result = orderService.placeOrder(1L,1L);
 
         assertNotNull(result);
         assertEquals(orderDto.getTotalPrice(), result.getTotalPrice());
@@ -103,13 +165,27 @@ class OrderServiceTest {
     }
 
     @Test
+    void placeOrder_shouldThrowException_whenAddressDoesHotBelongToTheUser() {
+        when(cartService.getCartByUserId(1L)).thenReturn(cart);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(addressRepository.findById(address2.getId())).thenReturn(Optional.of(address2));
+        when(orderMapper.toDto(any(Order.class))).thenReturn(orderDto);
+
+        assertThrows(ResourceNotFoundException.class,
+                ()-> orderService.placeOrder(1L,2L));
+
+        verify(addressRepository).findById(any());
+    }
+
+    @Test
     void placeOrder_shouldThrowException_whenStockIsInsufficient() {
         product.setInventory(1); // insufficient stock
 
         when(cartService.getCartByUserId(1L)).thenReturn(cart);
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
 
         assertThrows(InsufficientStockException.class,
-                () -> orderService.placeOrder(1L));
+                () -> orderService.placeOrder(1L,1L));
 
         verify(productRepository, never()).saveAll(any());
         verify(orderRepository, never()).save(any());
