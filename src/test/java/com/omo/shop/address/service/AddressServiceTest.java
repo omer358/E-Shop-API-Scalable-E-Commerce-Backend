@@ -9,6 +9,7 @@ import com.omo.shop.address.request.UpdateAddressRequest;
 import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.user.model.User;
 import com.omo.shop.user.repository.UserRepository;
+import com.omo.shop.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.omo.shop.common.constants.ExceptionMessages.ADDRESS_NOT_FOUND;
-import static com.omo.shop.common.constants.ExceptionMessages.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,6 +34,9 @@ class AddressServiceTest {
 
     @Mock
     private AddressMapper addressMapper;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private UserRepository userRepository;
@@ -90,11 +93,11 @@ class AddressServiceTest {
     @Test
     @DisplayName("Should create address when user exists")
     void createAddress_shouldSucceed_whenUserExists() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(addressRepository.save(any(Address.class))).thenReturn(address);
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
         when(addressMapper.toDto(any(Address.class))).thenReturn(addressDto);
 
-        AddressDto result = addressService.createAddress(createRequest, user.getId());
+        AddressDto result = addressService.createAddress(createRequest);
 
         assertNotNull(result);
         assertEquals(addressDto.getStreet(), result.getStreet());
@@ -102,17 +105,6 @@ class AddressServiceTest {
         verify(addressMapper).toDto(any(Address.class));
     }
 
-    @Test
-    @DisplayName("Should throw exception when user not found during address creation")
-    void createAddress_shouldThrowException_whenUserNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> addressService.createAddress(createRequest, user.getId()));
-
-        assertEquals(USER_NOT_FOUND, exception.getMessage());
-        verify(addressRepository, never()).save(any());
-    }
 
     @Test
     @DisplayName("Should update address when address exists")
@@ -120,6 +112,8 @@ class AddressServiceTest {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         when(addressRepository.save(any(Address.class))).thenReturn(address);
         when(addressMapper.toDto(address)).thenReturn(addressDto);
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
 
         AddressDto result = addressService.updateAddress(1L, updateRequest);
 
@@ -131,7 +125,6 @@ class AddressServiceTest {
     @Test
     @DisplayName("Should throw exception when address not found during update")
     void updateAddress_shouldThrowException_whenAddressNotFound() {
-        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> addressService.updateAddress(1L, updateRequest));
@@ -140,22 +133,38 @@ class AddressServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete address by ID")
-    void deleteAddress_shouldSucceed() {
+    @DisplayName("Should delete address by ID if exist")
+    void deleteAddress_shouldSucceed_IfAddressExist() {
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
         addressService.deleteAddress(1L);
-        verify(addressRepository).deleteById(1L);
+        verify(addressRepository).delete(any(Address.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception  if address doesn't exist")
+    void deleteAddress_shouldThrowException_IfAddressNotExist() {
+        when(addressRepository.findById(any())).thenReturn(Optional.empty());
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> addressService.deleteAddress(1L));
+        assertEquals(ADDRESS_NOT_FOUND, exception.getMessage());
+        verify(addressRepository, never()).deleteById(1L);
     }
 
     @Test
     @DisplayName("Should return list of addresses for user")
     void getUserAddresses_shouldReturnList() {
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
         List<Address> addressList = List.of(address);
-        List<AddressDto> addressDtoList = List.of(addressDto);
 
         when(addressRepository.findByUserId(1L)).thenReturn(addressList);
         when(addressMapper.toDto(address)).thenReturn(addressDto);
 
-        List<AddressDto> result = addressService.getUserAddresses(1L);
+        List<AddressDto> result = addressService.getUserAddresses();
 
         assertEquals(1, result.size());
         verify(addressRepository).findByUserId(1L);
@@ -165,6 +174,8 @@ class AddressServiceTest {
     @DisplayName("Should return address by ID")
     void getAddressById_shouldReturnAddress() {
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
         when(addressMapper.toDto(address)).thenReturn(addressDto);
 
         AddressDto result = addressService.getAddressById(1L);
@@ -176,6 +187,8 @@ class AddressServiceTest {
     @Test
     @DisplayName("Should throw exception when address not found by ID")
     void getAddressById_shouldThrowException_whenNotFound() {
+        when(addressService.getAuthenticatedUser()).thenReturn(user);
+
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,

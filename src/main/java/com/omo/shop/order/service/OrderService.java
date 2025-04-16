@@ -8,7 +8,6 @@ import com.omo.shop.cart.service.ICartService;
 import com.omo.shop.common.constants.ExceptionMessages;
 import com.omo.shop.common.exceptions.InsufficientStockException;
 import com.omo.shop.common.exceptions.ResourceNotFoundException;
-import com.omo.shop.common.exceptions.UnauthorizedAccessException;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.enums.OrderStatus;
 import com.omo.shop.order.mapper.OrderMapper;
@@ -46,7 +45,7 @@ public class OrderService implements IOrderService {
                 .orElseThrow(() -> new ResourceNotFoundException(ADDRESS_NOT_FOUND));
 
         if (!address.getUser().getId().equals(userId)) {
-            throw new UnauthorizedAccessException("You don't have access to this address");
+            throw new ResourceNotFoundException(ADDRESS_NOT_FOUND);
         }
         Order order = createOrder(cart, address);
         List<OrderItem> orderItems = createOrderItems(order, cart);

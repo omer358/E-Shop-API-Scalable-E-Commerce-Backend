@@ -4,9 +4,8 @@ import com.omo.shop.address.dto.AddressDto;
 import com.omo.shop.address.request.CreateAddressRequest;
 import com.omo.shop.address.request.UpdateAddressRequest;
 import com.omo.shop.address.service.IAddressService;
+import com.omo.shop.common.exceptions.ResourceNotFoundException;
 import com.omo.shop.common.response.ApiResponse;
-import com.omo.shop.user.model.User;
-import com.omo.shop.user.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequestMapping("${api.prefix}/addresses")
@@ -21,39 +21,55 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class AddressController {
 
     private final IAddressService addressService;
-    private final IUserService userService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<ApiResponse> createAddress(@RequestBody CreateAddressRequest request) {
-        User user = userService.getAuthenticatedUser();
-        AddressDto address = addressService.createAddress(request, user.getId());
-        return ResponseEntity.status(CREATED).body(new ApiResponse("Address created", address));
+        try {
+            AddressDto address = addressService.createAddress(request);
+            return ResponseEntity.status(CREATED).body(new ApiResponse("Address created", address));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), NOT_FOUND));
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateAddress(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long addressId,
             @RequestBody UpdateAddressRequest request
     ) {
-        AddressDto updated = addressService.updateAddress(id, request);
-        return ResponseEntity.ok(new ApiResponse("Address updated", updated));
+        try {
+            AddressDto updated = addressService.updateAddress(addressId, request);
+            return ResponseEntity.ok(new ApiResponse("Address updated", updated));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), NOT_FOUND));
+        }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUserAddresses(@PathVariable Long userId) {
-        List<AddressDto> addresses = addressService.getUserAddresses(userId);
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse> getUserAddresses() {
+        List<AddressDto> addresses = addressService.getUserAddresses();
         return ResponseEntity.ok(new ApiResponse("User addresses", addresses));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getAddressById(@PathVariable Long id) {
-        AddressDto address = addressService.getAddressById(id);
-        return ResponseEntity.ok(new ApiResponse("Address details", address));
+    public ResponseEntity<ApiResponse> getAddressById(@PathVariable(name = "id") Long addressId) {
+        try {
+            AddressDto address = addressService.getAddressById(addressId);
+            return ResponseEntity.ok(new ApiResponse("Address details", address));
+        } catch (Exception e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), NOT_FOUND));        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteAddress(@PathVariable Long id) {
-        addressService.deleteAddress(id);
-        return ResponseEntity.ok(new ApiResponse("Address deleted", null));
+        try {
+            addressService.deleteAddress(id);
+            return ResponseEntity.ok(new ApiResponse("Address deleted", null));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse(e.getMessage(), NOT_FOUND));        }
     }
 }

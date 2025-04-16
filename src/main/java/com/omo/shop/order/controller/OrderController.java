@@ -2,7 +2,6 @@ package com.omo.shop.order.controller;
 
 import com.omo.shop.common.exceptions.InsufficientStockException;
 import com.omo.shop.common.exceptions.ResourceNotFoundException;
-import com.omo.shop.common.exceptions.UnauthorizedAccessException;
 import com.omo.shop.common.response.ApiResponse;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.service.IOrderService;
@@ -14,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,9 +35,6 @@ public class OrderController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(new ApiResponse(e.getMessage(), NOT_FOUND));
-        } catch (UnauthorizedAccessException e) {
-            return ResponseEntity.status(UNAUTHORIZED)
-                    .body(new ApiResponse(e.getMessage(), UNAUTHORIZED));
         }
     }
 

@@ -8,7 +8,6 @@ import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.service.ICartService;
 import com.omo.shop.common.exceptions.InsufficientStockException;
 import com.omo.shop.common.exceptions.ResourceNotFoundException;
-import com.omo.shop.common.exceptions.UnauthorizedAccessException;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.enums.OrderStatus;
 import com.omo.shop.order.mapper.OrderMapper;
@@ -172,7 +171,7 @@ class OrderServiceTest {
         when(addressRepository.findById(address2.getId())).thenReturn(Optional.of(address2));
         when(orderMapper.toDto(any(Order.class))).thenReturn(orderDto);
 
-        assertThrows(UnauthorizedAccessException.class,
+        assertThrows(ResourceNotFoundException.class,
                 ()-> orderService.placeOrder(1L,2L));
 
         verify(addressRepository).findById(any());
