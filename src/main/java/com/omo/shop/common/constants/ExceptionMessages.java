@@ -13,6 +13,8 @@ public final class ExceptionMessages {
     public static final String IMAGE_NOT_FOUND = "Image not found";
     public static final String CATEGORY_EXISTED = " already exists ";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
+    public static final String TOKEN_EXPIRED = "Your session has expired. Please login again.";
+
 
     private ExceptionMessages() {
     } // Prevent instantiation
