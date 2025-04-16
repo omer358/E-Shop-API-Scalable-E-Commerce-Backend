@@ -1,6 +1,7 @@
 package com.omo.shop.user.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.omo.shop.address.model.Address;
 import com.omo.shop.cart.model.Cart;
 import com.omo.shop.order.model.Order;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.NaturalId;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -55,4 +57,7 @@ public class User {
                     referencedColumnName = "id")
     )
     private Collection<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Address> addresses = new HashSet<>();
+
 }

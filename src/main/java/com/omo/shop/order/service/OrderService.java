@@ -1,11 +1,14 @@
 package com.omo.shop.order.service;
 
+import com.omo.shop.address.model.Address;
+import com.omo.shop.address.repository.AddressRepository;
 import com.omo.shop.cart.model.Cart;
 import com.omo.shop.cart.model.CartItem;
 import com.omo.shop.cart.service.ICartService;
 import com.omo.shop.common.constants.ExceptionMessages;
 import com.omo.shop.common.exceptions.InsufficientStockException;
 import com.omo.shop.common.exceptions.ResourceNotFoundException;
+import com.omo.shop.common.exceptions.UnauthorizedAccessException;
 import com.omo.shop.order.dto.OrderDto;
 import com.omo.shop.order.enums.OrderStatus;
 import com.omo.shop.order.mapper.OrderMapper;
@@ -24,19 +27,28 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.omo.shop.common.constants.ExceptionMessages.ADDRESS_NOT_FOUND;
+
 @RequiredArgsConstructor
 @Service
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
     private final ICartService cartService;
     private final OrderMapper orderMapper;
 
     @Transactional
     @Override
-    public OrderDto placeOrder(Long userId) {
+    public OrderDto placeOrder(Long userId, Long addressId) {
         Cart cart = cartService.getCartByUserId(userId);
-        Order order = createOrder(cart);
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException(ADDRESS_NOT_FOUND));
+
+        if (!address.getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("You don't have access to this address");
+        }
+        Order order = createOrder(cart, address);
         List<OrderItem> orderItems = createOrderItems(order, cart);
         order.setOrderItems(new HashSet<>(orderItems));
         order.setTotalPrice(calculateTotalAmount(orderItems));
@@ -60,11 +72,12 @@ public class OrderService implements IOrderService {
         return orderMapper.toDtoList(orderList);
     }
 
-    private Order createOrder(Cart cart) {
+    private Order createOrder(Cart cart, Address address) {
         return Order.builder()
                 .user(cart.getUser())
                 .orderStatus(OrderStatus.PENDING)
                 .orderDataTime(LocalDateTime.now())
+                .shippingAddress(address)
                 .build();
     }
 

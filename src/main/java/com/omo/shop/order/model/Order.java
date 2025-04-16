@@ -1,6 +1,7 @@
 package com.omo.shop.order.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.omo.shop.address.model.Address;
 import com.omo.shop.order.enums.OrderStatus;
 import com.omo.shop.user.model.User;
 import jakarta.persistence.*;
@@ -39,4 +40,8 @@ public class Order {
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id")
+    private Address shippingAddress;
+
 }
