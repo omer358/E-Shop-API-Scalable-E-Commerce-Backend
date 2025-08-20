@@ -11,7 +11,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # ghcr.io/OWNER/REPO
+  IMAGE_NAME: e-shop-api-scalable-e-commerce-backend  # lowercase only
 
 jobs:
   build_and_test:
@@ -60,4 +60,4 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ci-${{ github.run_number }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:ci-${{ github.run_number }}
