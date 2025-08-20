@@ -1,0 +1,43 @@
+name: CI / CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write  # needed later when we push the Docker image to GHCR
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }} # ghcr.io/OWNER/REPO
+
+jobs:
+  build_and_test:
+    name: Build & Test (Maven)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Make Maven wrapper executable (Linux)
+        run: chmod +x mvnw
+
+      - name: Build & run tests
+        run: ./mvnw -B -ntp clean verify
+
+      - name: Upload test reports (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports

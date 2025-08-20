@@ -1,0 +1,9 @@
+
+### DELETE request to delete user by ID
+# Requires valid JWT token in Authorization header
+
+DELETE http://localhost:9193/api/v1/users/9
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
