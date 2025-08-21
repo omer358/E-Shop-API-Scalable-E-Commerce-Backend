@@ -1,0 +1,44 @@
+version: '3.9'  # Compose file format
+
+services:
+  shop-db:
+    image: mysql:8.0
+    container_name: shop-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "6000:3306"
+    networks:
+      - internal
+    volumes:
+      - shop-db-data:/var/lib/mysql
+
+  shop:
+    build: .
+    container_name: shop
+    restart: always
+    depends_on:
+      - shop-db
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
+      - SPRING_JPA_DATABASE_PLATFORM=${SPRING_JPA_DATABASE_PLATFORM}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      - SPRING_SQL_INIT_MODE=${SPRING_SQL_INIT_MODE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+    ports:
+      - "9193:9193"
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  shop-db-data:
