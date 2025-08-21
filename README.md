@@ -1,3 +1,9 @@
+Got it 👍 You want your README to explain how to **set up environment variables** properly (using `.env`) and **run the app with Docker Compose** (so people don’t have to manually copy long `docker run` commands).
+
+Here’s an updated version of your README with a clean **Docker Compose workflow** and **`.env` file instructions**:
+
+---
+
 # **🛒 E-Shop API – Spring Boot Backend for E-Commerce**
 
 ## **📌 Overview**
@@ -12,7 +18,6 @@
 * ✅ **Cart & Order Management** – Add, update, remove, and checkout
 * ✅ **Product & Category Management** – CRUD operations with stock handling
 * ✅ **Image Upload & Storage**
-* ✅ **Payment Gateway Integration** – Seamlessly integrated with **Moyasar**
 * ✅ **Custom Exception Handling** – Global handlers for graceful error responses
 * ✅ **DTO Mapping with MapStruct**
 * ✅ **Swagger/OpenAPI** Documentation
@@ -29,7 +34,6 @@
 * **Spring Security + JWT**
 * **Spring Data JPA**
 * **PostgreSQL / MySQL**
-* **Moyasar Payment API**
 * **Lombok**
 * **Docker & GHCR (GitHub Container Registry)**
 * **JUnit & Mockito**
@@ -66,50 +70,79 @@ Following **clean and layered architecture** principles:
   cd cart-shop
 ```
 
-### **2️⃣ Configure the Database**
+---
 
-Update `application.yml`:
+### **2️⃣ Create a `.env` File**
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/eshop_db
-    username: your_db_user
-    password: your_db_password
+In the project root, create a `.env` file and add your own values:
+
+```env
+# Database
+MYSQL_ROOT_PASSWORD=1029384756
+MYSQL_DATABASE=eshop_db
+MYSQL_USER=eshop_user
+MYSQL_PASSWORD=eshop_pass
+
+# App
+SPRING_DATASOURCE_URL=jdbc:mysql://shop-db:3306/eshop_db
+SPRING_DATASOURCE_USERNAME=eshop_user
+SPRING_DATASOURCE_PASSWORD=eshop_pass
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+
+# Security
+JWT_SECRET_KEY=your-secret-key-here
+JWT_EXPIRATION=3600000
 ```
 
-### **3️⃣ Run the App**
+---
 
-With **Maven**:
+### **3️⃣ Run with Docker Compose**
+
+Start both the **app** and **database** with one command:
 
 ```bash
-  ./mvnw clean install
-  ./mvnw spring-boot:run
+  docker compose up -d
 ```
 
-Or with **Docker** (recommended):
+👉 This will start:
+
+* `shop-db` → MySQL container
+* `shop` → Your Spring Boot API (connected to MySQL automatically)
+
+Check logs:
 
 ```bash
-  docker pull ghcr.io/omer358/e-shop-api-scalable-e-commerce-backend:latest
+  docker compose logs -f shop
 ```
 
-Then run with required environment variables:
+Stop containers:
+
+```bash
+  docker compose down
+```
+
+---
+
+### **4️⃣ Access the Application**
+
+* API → [http://localhost:9193](http://localhost:9193)
+* Swagger UI → [http://localhost:9193/swagger-ui/index.html](http://localhost:9193/swagger-ui/index.html)
+
+---
+
+### **5️⃣ Example: Running without Compose (optional)**
+
+If you only want the API (database must be running separately):
 
 ```bash
   docker run -d \
     --name shop \
     --network internal \
+    --env-file .env \
     -p 9193:9193 \
-    -e SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver \
-    -e SPRING_DATASOURCE_URL=jdbc:mysql://shop-db:3306/db \
-    -e SPRING_DATASOURCE_USERNAME=root \
-    -e SPRING_DATASOURCE_PASSWORD=1029384756 \
-    -e SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect \
-    -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-    -e SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect \
-    -e SPRING_SQL_INIT_MODE=always \
-    -e JWT_SECRET_KEY="your-secret-key-here" \
-    -e JWT_EXPIRATION="3600000" \
     ghcr.io/omer358/e-shop-api-scalable-e-commerce-backend:latest
 ```
 
@@ -128,12 +161,6 @@ This project includes a full **CI/CD pipeline using GitHub Actions**:
 📦 Images are available at:
 👉 `ghcr.io/omer358/e-shop-api-scalable-e-commerce-backend`
 
-### **🔑 Image Tags**
-
-* `ci-[run_number]` → unique build number per workflow run
-* `sha-[commit_sha]` → immutable per commit
-* `latest` → always points to the most recent build on `main`
-
 ---
 
 ## **📡 API Endpoints (Sample)**
@@ -148,8 +175,7 @@ This project includes a full **CI/CD pipeline using GitHub Actions**:
 | `POST` | `/api/auth/register` | Register new user     | ❌         |
 | `POST` | `/api/auth/login`    | Login & get JWT       | ❌         |
 
-📘 Full API docs available in **Swagger UI**:
-👉 [http://localhost:9193/swagger-ui/index.html](http://localhost:9193/swagger-ui/index.html)
+📘 Full API docs available in **Swagger UI**.
 
 ---
 
@@ -159,12 +185,6 @@ This project includes a full **CI/CD pipeline using GitHub Actions**:
 * Supports **user roles** (Admin, Customer)
 * Secure headers & endpoint protection via **Spring Security**
 
-Sample request header:
-
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
-```
-
 ---
 
 ## **✅ Testing**
@@ -172,7 +192,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
 Run unit and service-level tests:
 
 ```bash
-./mvnw test
+  ./mvnw test
 ```
 
 Frameworks used:
