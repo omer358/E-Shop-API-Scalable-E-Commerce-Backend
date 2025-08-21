@@ -1,9 +1,3 @@
-Got it 👍 You want your README to explain how to **set up environment variables** properly (using `.env`) and **run the app with Docker Compose** (so people don’t have to manually copy long `docker run` commands).
-
-Here’s an updated version of your README with a clean **Docker Compose workflow** and **`.env` file instructions**:
-
----
-
 # **🛒 E-Shop API – Spring Boot Backend for E-Commerce**
 
 ## **📌 Overview**
