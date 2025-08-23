@@ -7,12 +7,12 @@ import com.omo.shop.product.request.AddProductRequest;
 import com.omo.shop.product.request.UpdateProductRequest;
 import com.omo.shop.product.service.IProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
@@ -43,9 +43,9 @@ public class  ProductController {
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
             ProductDto newProduct = productService.addProduct(product);
-            return ResponseEntity.ok(new ApiResponse("Success", newProduct));
-        } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Success", newProduct));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
                     .body(new ApiResponse(e.getMessage(), null));
         }
     }
