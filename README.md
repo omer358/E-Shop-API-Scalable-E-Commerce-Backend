@@ -72,15 +72,11 @@ In the project root, create a `.env` file and add your own values:
 
 ```env
 # Database
-MYSQL_ROOT_PASSWORD=1029384756
+MYSQL_ROOT_PASSWORD=12345678
 MYSQL_DATABASE=eshop_db
-MYSQL_USER=eshop_user
-MYSQL_PASSWORD=eshop_pass
 
 # App
 SPRING_DATASOURCE_URL=jdbc:mysql://shop-db:3306/eshop_db
-SPRING_DATASOURCE_USERNAME=eshop_user
-SPRING_DATASOURCE_PASSWORD=eshop_pass
 SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
 SPRING_JPA_HIBERNATE_DDL_AUTO=update
 SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
