@@ -1,21 +1,35 @@
+# --------------------------
 # Build stage
+# --------------------------
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
+# Set working directory
 WORKDIR /app
 
+# Copy only pom.xml first to leverage Docker cache
 COPY pom.xml .
+
+# Download dependencies (go-offline) – cached unless pom.xml changes
 RUN mvn dependency:go-offline -B
 
+# Copy source code
 COPY src ./src
-RUN mvn clean package -DskipTests
 
-# Run stage (smaller base image with just JRE)
+# Build the project using multiple threads
+RUN mvn clean package -DskipTests -T 2C
+
+# --------------------------
+# Run stage (smaller base image)
+# --------------------------
 FROM eclipse-temurin:21-jre-alpine AS runner
 
 WORKDIR /app
 
+# Copy jar from builder stage
 COPY --from=builder /app/target/shop-0.0.1-SNAPSHOT.jar ./app.jar
 
+# Expose the port your app runs on
 EXPOSE 9193
 
+# Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
