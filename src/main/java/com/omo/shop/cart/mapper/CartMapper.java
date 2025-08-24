@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,10 +22,12 @@ public class CartMapper {
         CartDto cartDto = modelMapper.map(cart, CartDto.class);
 
         // Manually map items to prevent infinite recursion
-        Set<CartItemDto> cartItemDtos = cart.getItems()
-                .stream()
-                .map(cartItemMapper::toDto) // Convert CartItem to CartItemDto
-                .collect(Collectors.toSet());
+        Set<CartItemDto> cartItemDtos = cart.getItems() == null ?
+                new HashSet<>() :
+                cart.getItems()
+                        .stream()
+                        .map(cartItemMapper::toDto) // Convert CartItem to CartItemDto
+                        .collect(Collectors.toSet());
 
         cartDto.setItems(cartItemDtos);
         return cartDto;
@@ -34,8 +37,9 @@ public class CartMapper {
         Cart cart = modelMapper.map(cartDto, Cart.class);
 
         // Manually map items
-        Set<CartItem> cartItems = cartDto.getItems()
-                .stream()
+        Set<CartItem> cartItems = cartDto.getItems()== null ?
+                new HashSet<>() :
+                cartDto.getItems().stream()
                 .map(cartItemMapper::toEntity) // Convert CartItemDto to CartItem
                 .collect(Collectors.toSet());
 
